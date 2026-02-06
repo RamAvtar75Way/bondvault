@@ -26,6 +26,7 @@ export default function ContactProfileScreen() {
     const [mediaList, setMediaList] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<'timeline' | 'media' | 'info'>('timeline');
+    const [activeMediaFilter, setActiveMediaFilter] = useState<'All' | 'Photos' | 'Docs'>('All');
     const [currentPlayer, setCurrentPlayer] = useState<AudioPlayer | null>(null);
 
     useEffect(() => {
@@ -314,71 +315,112 @@ export default function ContactProfileScreen() {
                     </View>
                 )}
 
-                {/* MEDIA CONTENT */}
                 {activeTab === 'media' && (
                     <View style={styles.mediaContainer}>
                         <View style={styles.mediaFilter}>
-                            <TouchableOpacity style={[styles.filterPillActive, { backgroundColor: colors.text }]}><Text style={[styles.filterTextActive, { color: colors.background }]}>All</Text></TouchableOpacity>
-                            <TouchableOpacity style={[styles.filterPill, { backgroundColor: colors.card, borderColor: colors.border }]}><Text style={[styles.filterText, { color: colors.mutedText }]}>Photos</Text></TouchableOpacity>
-                            <TouchableOpacity style={[styles.filterPill, { backgroundColor: colors.card, borderColor: colors.border }]}><Text style={[styles.filterText, { color: colors.mutedText }]}>Docs</Text></TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => setActiveMediaFilter('All')}
+                                style={[
+                                    activeMediaFilter === 'All' ? styles.filterPillActive : styles.filterPill,
+                                    activeMediaFilter === 'All' ? { backgroundColor: colors.text } : { backgroundColor: colors.card, borderColor: colors.border }
+                                ]}
+                            >
+                                <Text style={[
+                                    activeMediaFilter === 'All' ? styles.filterTextActive : styles.filterText,
+                                    activeMediaFilter === 'All' ? { color: colors.background } : { color: colors.mutedText }
+                                ]}>All</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => setActiveMediaFilter('Photos')}
+                                style={[
+                                    activeMediaFilter === 'Photos' ? styles.filterPillActive : styles.filterPill,
+                                    activeMediaFilter === 'Photos' ? { backgroundColor: colors.text } : { backgroundColor: colors.card, borderColor: colors.border }
+                                ]}
+                            >
+                                <Text style={[
+                                    activeMediaFilter === 'Photos' ? styles.filterTextActive : styles.filterText,
+                                    activeMediaFilter === 'Photos' ? { color: colors.background } : { color: colors.mutedText }
+                                ]}>Photos</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => setActiveMediaFilter('Docs')}
+                                style={[
+                                    activeMediaFilter === 'Docs' ? styles.filterPillActive : styles.filterPill,
+                                    activeMediaFilter === 'Docs' ? { backgroundColor: colors.text } : { backgroundColor: colors.card, borderColor: colors.border }
+                                ]}
+                            >
+                                <Text style={[
+                                    activeMediaFilter === 'Docs' ? styles.filterTextActive : styles.filterText,
+                                    activeMediaFilter === 'Docs' ? { color: colors.background } : { color: colors.mutedText }
+                                ]}>Docs</Text>
+                            </TouchableOpacity>
                         </View>
                         <View style={styles.mediaGrid}>
                             <TouchableOpacity onPress={handleChooseMediaType} style={[styles.addMediaButton, { backgroundColor: colors.secondary, borderColor: colors.border }]}>
                                 <PlusCircle size={32} color={colors.mutedText} />
                             </TouchableOpacity>
-                            {mediaList.map((item) => (
-                                <TouchableOpacity
-                                    key={item.id}
-                                    style={[styles.mediaItem, { backgroundColor: colors.input }]}
-                                    onPress={() => handleOpenMedia(item)}
-                                >
-                                    {item.type === 'Image' && (
-                                        <Image source={{ uri: item.uri }} style={styles.mediaImage} />
-                                    )}
-                                    {item.type === 'Video' && (
-                                        <View style={[styles.mediaPlaceholder, { backgroundColor: '#F1F5F9' }]}>
-                                            <VideoIcon size={32} color={COLORS.primary} />
-                                            <Text numberOfLines={1} style={styles.mediaLabel}>Video</Text>
-                                        </View>
-                                    )}
-                                    {item.type === 'Audio' && (
-                                        <View style={[styles.mediaPlaceholder, { backgroundColor: '#FEF2F2' }]}>
-                                            <PlayCircle size={32} color="#EF4444" />
-                                            <Text numberOfLines={1} style={[styles.mediaLabel, { color: '#EF4444' }]}>
-                                                {item.fileName || 'Audio Note'}
-                                            </Text>
-                                        </View>
-                                    )}
-                                    {item.type === 'Document' && (
-                                        <View style={[styles.mediaPlaceholder, { backgroundColor: '#F0F9FF' }]}>
-                                            <FileText size={32} color="#0EA5E9" />
-                                            <Text numberOfLines={1} style={[styles.mediaLabel, { color: '#0EA5E9' }]}>
-                                                {item.fileName || 'Document'}
-                                            </Text>
-                                        </View>
-                                    )}
-                                </TouchableOpacity>
-                            ))}
+                            {mediaList
+                                .filter(item => {
+                                    if (activeMediaFilter === 'All') return true;
+                                    if (activeMediaFilter === 'Photos') return item.type === 'Image' || item.type === 'Video';
+                                    if (activeMediaFilter === 'Docs') return item.type === 'Document';
+                                    return true;
+                                })
+                                .map((item) => (
+                                    <TouchableOpacity
+                                        key={item.id}
+                                        style={[styles.mediaItem, { backgroundColor: colors.input }]}
+                                        onPress={() => handleOpenMedia(item)}
+                                    >
+                                        {item.type === 'Image' && (
+                                            <Image source={{ uri: item.uri }} style={styles.mediaImage} />
+                                        )}
+                                        {item.type === 'Video' && (
+                                            <View style={[styles.mediaPlaceholder, { backgroundColor: '#F1F5F9' }]}>
+                                                <VideoIcon size={32} color={COLORS.primary} />
+                                                <Text numberOfLines={1} style={styles.mediaLabel}>Video</Text>
+                                            </View>
+                                        )}
+                                        {item.type === 'Audio' && (
+                                            <View style={[styles.mediaPlaceholder, { backgroundColor: '#FEF2F2' }]}>
+                                                <PlayCircle size={32} color="#EF4444" />
+                                                <Text numberOfLines={1} style={[styles.mediaLabel, { color: '#EF4444' }]}>
+                                                    {item.fileName || 'Audio Note'}
+                                                </Text>
+                                            </View>
+                                        )}
+                                        {item.type === 'Document' && (
+                                            <View style={[styles.mediaPlaceholder, { backgroundColor: '#F0F9FF' }]}>
+                                                <FileText size={32} color="#0EA5E9" />
+                                                <Text numberOfLines={1} style={[styles.mediaLabel, { color: '#0EA5E9' }]}>
+                                                    {item.fileName || 'Document'}
+                                                </Text>
+                                            </View>
+                                        )}
+                                    </TouchableOpacity>
+                                ))}
                         </View>
                     </View>
                 )}
 
                 {/* INFO CONTENT */}
-                {activeTab === 'info' && (
-                    <View style={styles.infoContainer}>
-                        <InfoItem label="Mobile" value={contact.mobileNumber} colors={colors} />
-                        <InfoItem label="Email" value={contact.email} colors={colors} />
-                        <InfoItem label="Birthday" value={contact.birthday} colors={colors} />
-                        <InfoItem label="Notes" value={contact.notes} colors={colors} />
+                {
+                    activeTab === 'info' && (
+                        <View style={styles.infoContainer}>
+                            <InfoItem label="Mobile" value={contact.mobileNumber} colors={colors} />
+                            <InfoItem label="Email" value={contact.email} colors={colors} />
+                            <InfoItem label="Birthday" value={contact.birthday} colors={colors} />
+                            <InfoItem label="Notes" value={contact.notes} colors={colors} />
 
-                        <TouchableOpacity onPress={handleDelete} style={[styles.deleteButton, { backgroundColor: colors.secondary }]}>
-                            <Text style={[styles.deleteButtonText, { color: colors.destructive }]}>Delete Contact</Text>
-                        </TouchableOpacity>
-                    </View>
-                )}
+                            <TouchableOpacity onPress={handleDelete} style={[styles.deleteButton, { backgroundColor: colors.secondary }]}>
+                                <Text style={[styles.deleteButtonText, { color: colors.destructive }]}>Delete Contact</Text>
+                            </TouchableOpacity>
+                        </View>
+                    )
+                }
 
-            </ScrollView>
-        </Layout>
+            </ScrollView >
+        </Layout >
     );
 }
 
