@@ -143,7 +143,7 @@ export default function ContactProfileScreen() {
                 onPress: async () => {
                     if (contact?.id) {
                         await deleteContact(contact.id);
-                        navigate('/');
+                        navigate('/app/contacts');
                     }
                 }
             }
@@ -192,7 +192,7 @@ export default function ContactProfileScreen() {
         <Layout style={styles.layout}>
             {/* Header */}
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigate('/app/contacts')} style={styles.backButton}>
+                <TouchableOpacity onPress={() => navigate(-1)} style={styles.backButton}>
                     <ArrowLeft size={20} color="#334155" />
                 </TouchableOpacity>
 

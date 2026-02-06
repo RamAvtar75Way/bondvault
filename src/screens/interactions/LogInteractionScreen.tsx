@@ -1,11 +1,12 @@
 
+
 import { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, StyleSheet, Platform } from 'react-native';
 import { useNavigate, useParams } from 'react-router-native';
 import { Layout } from '../../components/ui/Layout';
 import { addInteraction } from '../../db/interactions';
 import { Mic, Camera, FileText, MapPin, X } from 'lucide-react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import * as Location from 'expo-location';
@@ -222,12 +223,31 @@ export default function LogInteractionScreen() {
                     {/* Date Picker */}
                     <View style={styles.dateContainer}>
                         <Text style={styles.label}>Date:</Text>
-                        <DateTimePicker
-                            value={date}
-                            mode="date"
-                            display="default"
-                            onChange={(e: any, d: Date | undefined) => d && setDate(d)}
-                        />
+                        {Platform.OS === 'ios' ? (
+                            <DateTimePicker
+                                value={date}
+                                mode="date"
+                                display="default"
+                                onChange={(e: any, d: Date | undefined) => d && setDate(d)}
+                            />
+                        ) : (
+                            <TouchableOpacity
+                                onPress={() => {
+                                    DateTimePickerAndroid.open({
+                                        value: date,
+                                        mode: 'date',
+                                        onChange: (event, selectedDate) => {
+                                            if (event.type === 'set' && selectedDate) {
+                                                setDate(selectedDate);
+                                            }
+                                        }
+                                    });
+                                }}
+                                style={styles.dateButton}
+                            >
+                                <Text style={styles.dateButtonText}>{date.toLocaleDateString()}</Text>
+                            </TouchableOpacity>
+                        )}
                     </View>
 
                     {/* Notes Input */}
@@ -388,6 +408,18 @@ const styles = StyleSheet.create({
     label: {
         color: '#94A3B8',
         marginRight: 8,
+    },
+    dateButton: {
+        backgroundColor: '#F8FAFC',
+        borderWidth: 1,
+        borderColor: '#E2E8F0',
+        borderRadius: RADIUS.md,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+    },
+    dateButtonText: {
+        color: '#0F172A',
+        fontSize: FONT_SIZE.base,
     },
     notesInput: {
         fontSize: FONT_SIZE.xl,

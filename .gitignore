@@ -39,3 +39,30 @@ yarn-error.*
 
 
 .env
+
+# Android
+android/*.iml
+android/app/build/
+android/app/src/main/assets/
+android/app/src/release/java/
+android/build/
+android/.gradle/
+android/captures/
+android/gradlew
+android/gradlew.bat
+android/local.properties
+android/project.properties
+
+# iOS
+ios/*.mode1v3
+ios/*.mode2v3
+ios/*.moved-aside
+ios/*.pbxuser
+ios/*.perspectivev3
+ios/*.xcworkspace
+ios/Pods/
+ios/Podfile.lock
+ios/build/
+ios/DerivedData/
+ios/fastlane/report.xml
+ios/fastlane/screenshots

@@ -9,7 +9,7 @@ import * as Sharing from 'expo-sharing';
 import { db } from '../../db/client';
 import { contacts, interactions, reminders } from '../../db/schema';
 import { COLORS, SPACING, FONT_SIZE, RADIUS } from '../../constants/theme';
-import { setBiometricEnabled as saveBiometricPref, isBiometricEnabled, resetStoredPin } from '../../utils/security';
+import { setBiometricEnabled as saveBiometricPref, isBiometricEnabled, resetStoredPin, getStoredPin } from '../../utils/security';
 
 export default function SettingsScreen() {
     const navigate = useNavigate();
@@ -32,20 +32,47 @@ export default function SettingsScreen() {
     };
 
     const handleChangePasscode = async () => {
-        Alert.alert(
-            'Change Passcode',
-            'Are you sure you want to reset your passcode? You will need to set a new one next time you access the vault.',
+        const currentPin = await getStoredPin();
+
+        if (!currentPin) {
+            // No PIN set yet, allow direct setup
+            await resetStoredPin();
+            navigate('/vault-auth');
+            return;
+        }
+
+        // Prompt for current passcode
+        Alert.prompt(
+            'Verify Current Passcode',
+            'Enter your current passcode to continue',
             [
                 { text: 'Cancel', style: 'cancel' },
                 {
-                    text: 'Reset',
-                    style: 'destructive',
-                    onPress: async () => {
-                        await resetStoredPin();
-                        navigate('/vault-auth');
+                    text: 'Verify',
+                    onPress: async (enteredPin?: string) => {
+                        if (enteredPin === currentPin) {
+                            // Current PIN is correct, allow reset
+                            Alert.alert(
+                                'Change Passcode',
+                                'You will now set a new passcode.',
+                                [
+                                    { text: 'Cancel', style: 'cancel' },
+                                    {
+                                        text: 'Continue',
+                                        onPress: async () => {
+                                            await resetStoredPin();
+                                            navigate('/vault-auth');
+                                        }
+                                    }
+                                ]
+                            );
+                        } else {
+                            Alert.alert('Error', 'Incorrect passcode. Please try again.');
+                        }
                     }
                 }
-            ]
+            ],
+            'secure-text'
         );
     };
 

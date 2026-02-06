@@ -1,8 +1,9 @@
 
+
 import { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, Platform, StyleSheet, Modal, FlatList } from 'react-native';
 import { useNavigate, useParams } from 'react-router-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { Layout } from '../../components/ui/Layout';
 import { addReminder } from '../../db/reminders';
 import { getContacts, getContactById } from '../../db/contacts';
@@ -16,7 +17,6 @@ export default function AddReminderScreen() {
 
     const [title, setTitle] = useState('');
     const [date, setDate] = useState(new Date());
-    const [showPicker, setShowPicker] = useState(false);
 
     // Contact Selection State
     const [selectedContact, setSelectedContact] = useState<any>(null);
@@ -122,25 +122,31 @@ export default function AddReminderScreen() {
                                 onChange={(e: any, d: Date | undefined) => d && setDate(d)}
                             />
                         ) : (
-                            <View>
-                                <TouchableOpacity
-                                    onPress={() => setShowPicker(true)}
-                                    style={styles.input}
-                                >
-                                    <Text style={styles.dateText}>{date.toLocaleString()}</Text>
-                                </TouchableOpacity>
-                                {showPicker && (
-                                    <DateTimePicker
-                                        value={date}
-                                        mode="datetime"
-                                        display="default"
-                                        onChange={(e: any, d: Date | undefined) => {
-                                            setShowPicker(false);
-                                            if (d) setDate(d);
-                                        }}
-                                    />
-                                )}
-                            </View>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    DateTimePickerAndroid.open({
+                                        value: date,
+                                        mode: 'date',
+                                        onChange: (event, selectedDate) => {
+                                            if (event.type === 'set' && selectedDate) {
+                                                // After date is selected, open time picker
+                                                DateTimePickerAndroid.open({
+                                                    value: selectedDate,
+                                                    mode: 'time',
+                                                    onChange: (timeEvent, selectedTime) => {
+                                                        if (timeEvent.type === 'set' && selectedTime) {
+                                                            setDate(selectedTime);
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    });
+                                }}
+                                style={styles.input}
+                            >
+                                <Text style={styles.dateText}>{date.toLocaleString()}</Text>
+                            </TouchableOpacity>
                         )}
                     </View>
 

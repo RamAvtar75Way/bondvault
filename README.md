@@ -77,6 +77,24 @@ EXPO_PUBLIC_API_BASE_URL=https://api.yourdomain.com
 npx expo start
 ```
 
+### 5. Run on Native (Android/iOS)
+
+Since this project contains native code, you can run it directly on simulators/emulators without Expo Go.
+
+**Prerequisites:**
+*   **Android**: Android Studio & Android SDK installed.
+*   **iOS**: Xcode & CocoaPods installed (Mac only).
+
+**Commands:**
+
+```bash
+# Run on Android Emulator
+npm run android
+
+# Run on iOS Simulator
+npm run ios
+```
+
 ## 📖 Development Guide
 
 ### How to Add a New Page
