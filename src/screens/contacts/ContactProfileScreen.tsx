@@ -1,6 +1,6 @@
 
 import { useEffect, useState, useCallback } from 'react';
-import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, Alert, Linking, Image, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, Alert, Linking, Image, StyleSheet, Platform, PermissionsAndroid } from 'react-native';
 import { useParams, useNavigate } from 'react-router-native';
 import { Layout } from '../../components/ui/Layout';
 import { getContactById, deleteContact } from '../../db/contacts';
@@ -158,15 +158,47 @@ export default function ContactProfileScreen() {
         );
     }
 
-    const handleCall = () => {
+
+    const handleCall = async () => {
         if (!contact.mobileNumber) {
             Alert.alert('No Number', 'This contact does not have a mobile number.');
             return;
         }
-        Linking.openURL(`tel:${contact.mobileNumber}`).catch(() =>
-            Alert.alert('Error', 'Could not open dialer.')
-        );
+
+        // On Android, request CALL_PHONE permission for direct calling
+        if (Platform.OS === 'android') {
+            try {
+                const granted = await PermissionsAndroid.request(
+                    PermissionsAndroid.PERMISSIONS.CALL_PHONE,
+                    {
+                        title: 'Phone Call Permission',
+                        message: 'BondVault needs permission to make phone calls directly from the app.',
+                        buttonNeutral: 'Ask Me Later',
+                        buttonNegative: 'Cancel',
+                        buttonPositive: 'OK',
+                    }
+                );
+
+                if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                    // Use tel: URL which will initiate call directly with permission
+                    Linking.openURL(`tel:${contact.mobileNumber}`).catch(() =>
+                        Alert.alert('Error', 'Could not initiate call.')
+                    );
+                } else {
+                    Alert.alert('Permission Denied', 'Phone call permission is required to make calls.');
+                }
+            } catch (err) {
+                console.error('Error requesting call permission:', err);
+                Alert.alert('Error', 'Could not request permission.');
+            }
+        } else {
+            // On iOS, tel: always opens dialer (no direct calling allowed)
+            Linking.openURL(`tel:${contact.mobileNumber}`).catch(() =>
+                Alert.alert('Error', 'Could not open dialer.')
+            );
+        }
     };
+
 
     const handleMessage = () => {
         if (!contact.mobileNumber) {
