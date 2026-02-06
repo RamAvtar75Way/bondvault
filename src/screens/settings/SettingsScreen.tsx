@@ -2,7 +2,7 @@
 import { View, Text, Switch, TouchableOpacity, ScrollView, Alert, Share, StyleSheet, Platform, ActivityIndicator } from 'react-native';
 import { Layout } from '../../components/ui/Layout';
 import { useNavigate } from 'react-router-native';
-import { ArrowLeft, Bell, Calendar, Lock, Cloud, ChevronRight, Upload, Phone, RefreshCw } from 'lucide-react-native';
+import { ArrowLeft, Bell, Calendar, Lock, Cloud, ChevronRight, Upload, Phone, RefreshCw, Sun, Moon, Smartphone } from 'lucide-react-native';
 import { useState, useEffect } from 'react';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
@@ -10,6 +10,7 @@ import { db } from '../../db/client';
 import { contacts, interactions, reminders } from '../../db/schema';
 import { COLORS, SPACING, FONT_SIZE, RADIUS } from '../../constants/theme';
 import { setBiometricEnabled as saveBiometricPref, isBiometricEnabled, resetStoredPin, getStoredPin } from '../../utils/security';
+import { useTheme } from '../../contexts/ThemeContext';
 import {
     isAutoSyncEnabled,
     setAutoSyncEnabled,
@@ -20,6 +21,7 @@ import {
 
 export default function SettingsScreen() {
     const navigate = useNavigate();
+    const { themeMode, setThemeMode, colors } = useTheme();
     const [biometricEnabled, setBiometricEnabled] = useState(true);
     const [calendarSync, setCalendarSync] = useState(true);
     const [notifications, setNotifications] = useState(true);
@@ -119,44 +121,225 @@ export default function SettingsScreen() {
         }
     };
 
+    // Create dynamic styles based on theme
+    const dynamicStyles = StyleSheet.create({
+        layout: {
+            backgroundColor: colors.background,
+        },
+        header: {
+            backgroundColor: colors.card,
+            paddingHorizontal: 16,
+            paddingVertical: 16,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.border,
+            flexDirection: 'row',
+            alignItems: 'center',
+        },
+        title: {
+            fontSize: FONT_SIZE.xxl,
+            fontWeight: '700',
+            color: colors.text,
+        },
+        scrollView: {
+            flex: 1,
+        },
+        sectionTitle: {
+            fontSize: FONT_SIZE.sm,
+            fontWeight: '600',
+            color: colors.mutedText,
+            textTransform: 'uppercase',
+            letterSpacing: 0.5,
+            marginTop: 24,
+            marginBottom: 8,
+            paddingHorizontal: 16,
+        },
+        sectionContainer: {
+            backgroundColor: colors.card,
+            borderTopWidth: 1,
+            borderBottomWidth: 1,
+            borderColor: colors.border,
+        },
+        settingsItem: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: 16,
+            backgroundColor: colors.card,
+        },
+        itemLeft: {
+            flexDirection: 'row',
+            alignItems: 'center',
+        },
+        iconContainer: {
+            width: 32,
+            height: 32,
+            borderRadius: RADIUS.md,
+            backgroundColor: colors.tealLight,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginRight: 12,
+        },
+        itemLabel: {
+            color: colors.text,
+            fontWeight: '500',
+            fontSize: FONT_SIZE.base,
+        },
+        backupButton: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: 16,
+            backgroundColor: colors.card,
+        },
+        backupContent: {
+            flexDirection: 'row',
+            alignItems: 'center',
+        },
+        backupTitle: {
+            color: colors.text,
+            fontWeight: '500',
+            fontSize: FONT_SIZE.base,
+        },
+        backupSubtitle: {
+            color: colors.mutedText,
+            fontSize: FONT_SIZE.xs,
+        },
+        versionContainer: {
+            alignItems: 'center',
+            marginTop: 16,
+        },
+        versionText: {
+            color: colors.mutedText,
+            fontSize: FONT_SIZE.sm,
+        },
+        syncButton: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: 16,
+            backgroundColor: colors.card,
+        },
+        syncContent: {
+            flexDirection: 'row',
+            alignItems: 'center',
+        },
+        syncTitle: {
+            color: colors.text,
+            fontWeight: '500',
+            fontSize: FONT_SIZE.base,
+        },
+        syncSubtitle: {
+            color: colors.mutedText,
+            fontSize: FONT_SIZE.xs,
+            marginTop: 2,
+        },
+        themeSelector: {
+            flexDirection: 'row',
+            gap: 12,
+            padding: 16,
+        },
+        themeOption: {
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingVertical: 16,
+            paddingHorizontal: 12,
+            borderRadius: RADIUS.md,
+            backgroundColor: colors.input,
+            borderWidth: 2,
+            borderColor: 'transparent',
+            gap: 8,
+        },
+        themeOptionActive: {
+            backgroundColor: colors.tealLight,
+            borderColor: colors.primary,
+        },
+        themeOptionText: {
+            fontSize: FONT_SIZE.sm,
+            fontWeight: '500',
+            color: colors.mutedText,
+        },
+        themeOptionTextActive: {
+            color: colors.primary,
+            fontWeight: '600',
+        },
+    });
+
     return (
-        <Layout style={styles.layout}>
-            <View style={styles.header}>
-                <Text style={styles.title}>Settings</Text>
+        <Layout style={dynamicStyles.layout}>
+            <View style={dynamicStyles.header}>
+                <Text style={dynamicStyles.title}>Settings</Text>
             </View>
 
-            <ScrollView style={styles.scrollView}>
+            <ScrollView style={dynamicStyles.scrollView}>
 
                 {/* Security Section */}
-                <Text style={styles.sectionTitle}>Security</Text>
-                <View style={styles.sectionContainer}>
+                <Text style={dynamicStyles.sectionTitle}>Security</Text>
+                <View style={dynamicStyles.sectionContainer}>
                     <SettingsItem
-                        icon={<Lock size={20} color={COLORS.primary} />}
+                        icon={<Lock size={20} color={colors.primary} />}
                         label="Biometric & Vault"
                         value={biometricEnabled}
                         onValueChange={handleBiometricToggle}
                         isToggle
                         borderBottom
+                        colors={colors}
                     />
                     <TouchableOpacity
-                        style={styles.settingsItem}
+                        style={dynamicStyles.settingsItem}
                         onPress={handleChangePasscode}
                     >
-                        <View style={styles.itemLeft}>
-                            <View style={styles.iconContainer}>
-                                <Lock size={20} color={COLORS.primary} />
+                        <View style={dynamicStyles.itemLeft}>
+                            <View style={dynamicStyles.iconContainer}>
+                                <Lock size={20} color={colors.primary} />
                             </View>
-                            <Text style={styles.itemLabel}>Change Passcode</Text>
+                            <Text style={dynamicStyles.itemLabel}>Change Passcode</Text>
                         </View>
-                        <ChevronRight size={20} color="#CBD5E1" />
+                        <ChevronRight size={20} color={colors.mutedText} />
                     </TouchableOpacity>
+                </View>
+
+                {/* Appearance Section */}
+                <Text style={dynamicStyles.sectionTitle}>Appearance</Text>
+                <View style={dynamicStyles.sectionContainer}>
+                    <View style={dynamicStyles.themeSelector}>
+                        <TouchableOpacity
+                            style={[dynamicStyles.themeOption, themeMode === 'light' && dynamicStyles.themeOptionActive]}
+                            onPress={() => setThemeMode('light')}
+                        >
+                            <Sun size={24} color={themeMode === 'light' ? colors.primary : colors.mutedText} />
+                            <Text style={[dynamicStyles.themeOptionText, themeMode === 'light' && dynamicStyles.themeOptionTextActive]}>
+                                Light
+                            </Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[dynamicStyles.themeOption, themeMode === 'dark' && dynamicStyles.themeOptionActive]}
+                            onPress={() => setThemeMode('dark')}
+                        >
+                            <Moon size={24} color={themeMode === 'dark' ? colors.primary : colors.mutedText} />
+                            <Text style={[dynamicStyles.themeOptionText, themeMode === 'dark' && dynamicStyles.themeOptionTextActive]}>
+                                Dark
+                            </Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[dynamicStyles.themeOption, themeMode === 'system' && dynamicStyles.themeOptionActive]}
+                            onPress={() => setThemeMode('system')}
+                        >
+                            <Smartphone size={24} color={themeMode === 'system' ? colors.primary : colors.mutedText} />
+                            <Text style={[dynamicStyles.themeOptionText, themeMode === 'system' && dynamicStyles.themeOptionTextActive]}>
+                                System
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
 
                 {/* Call Log Sync Section (Disabled - requires development build) */}
                 {false && Platform.OS === 'android' && (
                     <>
-                        <Text style={styles.sectionTitle}>Call Log Sync</Text>
-                        <View style={styles.sectionContainer}>
+                        <Text style={dynamicStyles.sectionTitle}>Call Log Sync</Text>
+                        <View style={dynamicStyles.sectionContainer}>
                             <SettingsItem
                                 icon={<Phone size={20} color={COLORS.primary} />}
                                 label="Auto-sync Call Logs"
@@ -178,6 +361,7 @@ export default function SettingsScreen() {
                                 }}
                                 isToggle
                                 borderBottom
+                                colors={colors}
                             />
                             <TouchableOpacity
                                 onPress={async () => {
@@ -200,11 +384,11 @@ export default function SettingsScreen() {
                                         setSyncing(false);
                                     }
                                 }}
-                                style={styles.syncButton}
+                                style={dynamicStyles.syncButton}
                                 disabled={syncing}
                             >
-                                <View style={styles.syncContent}>
-                                    <View style={styles.iconContainer}>
+                                <View style={dynamicStyles.syncContent}>
+                                    <View style={dynamicStyles.iconContainer}>
                                         {syncing ? (
                                             <ActivityIndicator size="small" color={COLORS.primary} />
                                         ) : (
@@ -212,21 +396,21 @@ export default function SettingsScreen() {
                                         )}
                                     </View>
                                     <View>
-                                        <Text style={styles.syncTitle}>{syncing ? 'Syncing...' : 'Sync Now'}</Text>
+                                        <Text style={dynamicStyles.syncTitle}>{syncing ? 'Syncing...' : 'Sync Now'}</Text>
                                         {lastSync && (
-                                            <Text style={styles.syncSubtitle}>Last sync: {lastSync}</Text>
+                                            <Text style={dynamicStyles.syncSubtitle}>Last sync: {lastSync}</Text>
                                         )}
                                     </View>
                                 </View>
-                                <ChevronRight size={20} color="#CBD5E1" />
+                                <ChevronRight size={20} color={colors.mutedText} />
                             </TouchableOpacity>
                         </View>
                     </>
                 )}
 
                 {/* General Section */}
-                <Text style={styles.sectionTitle}>General</Text>
-                <View style={styles.sectionContainer}>
+                <Text style={dynamicStyles.sectionTitle}>General</Text>
+                <View style={dynamicStyles.sectionContainer}>
                     <SettingsItem
                         icon={<Calendar size={20} color={COLORS.primary} />}
                         label="Calendar Sync"
@@ -234,6 +418,7 @@ export default function SettingsScreen() {
                         onValueChange={setCalendarSync}
                         isToggle
                         borderBottom
+                        colors={colors}
                     />
                     <SettingsItem
                         icon={<Bell size={20} color={COLORS.primary} />}
@@ -241,31 +426,32 @@ export default function SettingsScreen() {
                         value={notifications}
                         onValueChange={setNotifications}
                         isToggle
+                        colors={colors}
                     />
                 </View>
 
                 {/* Data Section */}
-                <Text style={styles.sectionTitle}>Data & Backup</Text>
-                <View style={styles.sectionContainer}>
+                <Text style={dynamicStyles.sectionTitle}>Data & Backup</Text>
+                <View style={dynamicStyles.sectionContainer}>
                     <TouchableOpacity
                         onPress={handleBackup}
-                        style={styles.backupButton}
+                        style={dynamicStyles.backupButton}
                     >
-                        <View style={styles.backupContent}>
-                            <View style={styles.iconContainer}>
+                        <View style={dynamicStyles.backupContent}>
+                            <View style={dynamicStyles.iconContainer}>
                                 <Upload size={18} color={COLORS.primary} />
                             </View>
                             <View>
-                                <Text style={styles.backupTitle}>Export Backup</Text>
-                                <Text style={styles.backupSubtitle}>Save your data externally</Text>
+                                <Text style={dynamicStyles.backupTitle}>Export Backup</Text>
+                                <Text style={dynamicStyles.backupSubtitle}>Save your data externally</Text>
                             </View>
                         </View>
-                        <ChevronRight size={20} color="#CBD5E1" />
+                        <ChevronRight size={20} color={colors.mutedText} />
                     </TouchableOpacity>
                 </View>
 
-                <TouchableOpacity style={styles.versionContainer}>
-                    <Text style={styles.versionText}>BondVault v1.0.0</Text>
+                <TouchableOpacity style={dynamicStyles.versionContainer}>
+                    <Text style={dynamicStyles.versionText}>BondVault v1.0.0</Text>
                 </TouchableOpacity>
 
             </ScrollView>
@@ -273,41 +459,36 @@ export default function SettingsScreen() {
     );
 }
 
-const SettingsItem = ({ icon, label, value, onValueChange, isToggle, borderBottom }: any) => (
-    <View style={[styles.settingsItem, borderBottom && styles.borderBottom]}>
+const SettingsItem = ({ icon, label, value, onValueChange, isToggle, borderBottom, colors }: any) => (
+    <View style={[styles.settingsItem, borderBottom && { borderBottomWidth: 1, borderBottomColor: colors.border }]}>
         <View style={styles.itemLeft}>
             <View style={styles.iconContainer}>
                 {icon}
             </View>
-            <Text style={styles.itemLabel}>{label}</Text>
+            <Text style={[styles.itemLabel, { color: colors.text }]}>{label}</Text>
         </View>
         {isToggle && (
             <Switch
                 value={value}
                 onValueChange={onValueChange}
-                trackColor={{ false: '#E2E8F0', true: COLORS.primary }}
+                trackColor={{ false: colors.border, true: COLORS.primary }}
             />
         )}
     </View>
 );
 
 const styles = StyleSheet.create({
-    layout: {
-        backgroundColor: '#F8FAFC', // slate-50
-    },
+    layout: {},
     header: {
-        backgroundColor: '#FFFFFF',
         paddingHorizontal: 24,
         paddingVertical: 16,
         borderBottomWidth: 1,
-        borderBottomColor: '#F1F5F9',
         flexDirection: 'row',
         alignItems: 'center',
     },
     title: {
         fontSize: FONT_SIZE.xl,
         fontWeight: 'bold',
-        color: '#0F172A',
     },
     scrollView: {
         flex: 1,
@@ -316,25 +497,21 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: FONT_SIZE.sm,
         fontWeight: 'bold',
-        color: '#64748B', // slate-500
         textTransform: 'uppercase',
         marginBottom: 12,
         marginLeft: 8,
     },
     sectionContainer: {
-        backgroundColor: '#FFFFFF',
         borderRadius: RADIUS.lg,
         overflow: 'hidden',
         marginBottom: 32,
         borderWidth: 1,
-        borderColor: '#F1F5F9',
     },
     settingsItem: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: 16,
-        backgroundColor: '#FFFFFF',
     },
     borderBottom: {
         borderBottomWidth: 1,
@@ -354,7 +531,6 @@ const styles = StyleSheet.create({
         marginRight: 12,
     },
     itemLabel: {
-        color: '#0F172A',
         fontWeight: '500',
         fontSize: FONT_SIZE.base,
     },
@@ -363,19 +539,16 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: 16,
-        backgroundColor: '#FFFFFF',
     },
     backupContent: {
         flexDirection: 'row',
         alignItems: 'center',
     },
     backupTitle: {
-        color: '#0F172A',
         fontWeight: '500',
         fontSize: FONT_SIZE.base,
     },
     backupSubtitle: {
-        color: '#94A3B8',
         fontSize: FONT_SIZE.xs,
     },
     versionContainer: {
@@ -383,7 +556,6 @@ const styles = StyleSheet.create({
         marginTop: 16,
     },
     versionText: {
-        color: '#94A3B8',
         fontSize: FONT_SIZE.sm,
     },
     syncButton: {
@@ -391,20 +563,46 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: 16,
-        backgroundColor: '#FFFFFF',
     },
     syncContent: {
         flexDirection: 'row',
         alignItems: 'center',
     },
     syncTitle: {
-        color: '#0F172A',
         fontWeight: '500',
         fontSize: FONT_SIZE.base,
     },
     syncSubtitle: {
-        color: '#94A3B8',
         fontSize: FONT_SIZE.xs,
         marginTop: 2,
+    },
+    themeSelector: {
+        flexDirection: 'row',
+        gap: 12,
+        padding: 16,
+    },
+    themeOption: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 16,
+        paddingHorizontal: 12,
+        borderRadius: RADIUS.md,
+        backgroundColor: COLORS.input,
+        borderWidth: 2,
+        borderColor: 'transparent',
+        gap: 8,
+    },
+    themeOptionActive: {
+        backgroundColor: COLORS.tealLight,
+        borderColor: COLORS.primary,
+    },
+    themeOptionText: {
+        fontSize: FONT_SIZE.sm,
+        fontWeight: '500',
+    },
+    themeOptionTextActive: {
+        color: COLORS.primary,
+        fontWeight: '600',
     },
 });

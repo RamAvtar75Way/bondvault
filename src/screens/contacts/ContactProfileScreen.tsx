@@ -14,8 +14,10 @@ import { createAudioPlayer, AudioPlayer } from 'expo-audio';
 
 import { format } from 'date-fns';
 import { COLORS, SPACING, FONT_SIZE, RADIUS } from '../../constants/theme';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export default function ContactProfileScreen() {
+    const { colors } = useTheme();
     // ... existing state ...
     const { id } = useParams();
     const navigate = useNavigate();
@@ -223,45 +225,45 @@ export default function ContactProfileScreen() {
     return (
         <Layout style={styles.layout}>
             {/* Header */}
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigate(-1)} style={styles.backButton}>
-                    <ArrowLeft size={20} color="#334155" />
+            <View style={[styles.header, { borderBottomColor: colors.border }]}>
+                <TouchableOpacity onPress={() => navigate(-1)} style={[styles.backButton, { backgroundColor: colors.card }]}>
+                    <ArrowLeft size={20} color={colors.text} />
                 </TouchableOpacity>
 
                 <TouchableOpacity
                     onPress={() => navigate(`/edit-contact/${contact.id}`)}
-                    style={styles.editButton}
+                    style={[styles.editButton, { backgroundColor: colors.card }]}
                 >
-                    <Pencil size={20} color="#334155" />
+                    <Pencil size={20} color={colors.text} />
                 </TouchableOpacity>
 
                 <View style={styles.profileInfo}>
-                    <View style={styles.avatar}>
+                    <View style={[styles.avatar, { backgroundColor: colors.secondary }]}>
                         {contact.profileImageUri ? (
                             <Image source={{ uri: contact.profileImageUri }} style={styles.avatarImage} />
                         ) : (
-                            <Text style={styles.avatarText}>
+                            <Text style={[styles.avatarText, { color: colors.mutedText }]}>
                                 {contact.firstName[0]}{contact.lastName ? contact.lastName[0] : ''}
                             </Text>
                         )}
                     </View>
-                    <Text style={styles.name}>{contact.firstName} {contact.lastName}</Text>
-                    <Text style={styles.relationBadge}>{contact.relationType || 'Contact'}</Text>
+                    <Text style={[styles.name, { color: colors.text }]}>{contact.firstName} {contact.lastName}</Text>
+                    <Text style={[styles.relationBadge, { color: colors.primary }]}>{contact.relationType || 'Contact'}</Text>
                 </View>
 
                 {/* Quick Actions */}
                 <View style={styles.quickActions}>
-                    <ActionButton icon={<Phone size={20} color="white" />} color="#22C55E" label="Call" onPress={handleCall} />
-                    <ActionButton icon={<MessageCircle size={20} color="white" />} color="#3B82F6" label="Message" onPress={handleMessage} />
-                    <ActionButton icon={<Mail size={20} color="white" />} color="#F97316" label="Email" onPress={handleEmail} />
+                    <ActionButton icon={<Phone size={20} color="white" />} color="#22C55E" label="Call" onPress={handleCall} textColor={colors.mutedText} />
+                    <ActionButton icon={<MessageCircle size={20} color="white" />} color="#3B82F6" label="Message" onPress={handleMessage} textColor={colors.mutedText} />
+                    <ActionButton icon={<Mail size={20} color="white" />} color="#F97316" label="Email" onPress={handleEmail} textColor={colors.mutedText} />
                 </View>
             </View>
 
             {/* Tabs */}
-            <View style={styles.tabs}>
-                <TabButton label="Timeline" active={activeTab === 'timeline'} onPress={() => setActiveTab('timeline')} />
-                <TabButton label="Media" active={activeTab === 'media'} onPress={() => setActiveTab('media')} />
-                <TabButton label="Info" active={activeTab === 'info'} onPress={() => setActiveTab('info')} />
+            <View style={[styles.tabs, { borderBottomColor: colors.border }]}>
+                <TabButton label="Timeline" active={activeTab === 'timeline'} onPress={() => setActiveTab('timeline')} colors={colors} />
+                <TabButton label="Media" active={activeTab === 'media'} onPress={() => setActiveTab('media')} colors={colors} />
+                <TabButton label="Info" active={activeTab === 'info'} onPress={() => setActiveTab('info')} colors={colors} />
             </View>
 
             <ScrollView style={styles.content}>
@@ -271,42 +273,42 @@ export default function ContactProfileScreen() {
                     <View style={styles.tabContent}>
                         <TouchableOpacity
                             onPress={() => navigate(`/log-interaction/${contact.id}`)}
-                            style={styles.logButton}
+                            style={[styles.logButton, { backgroundColor: colors.primary }]}
                         >
                             <PlusCircle size={20} color="white" style={{ marginRight: 8 }} />
-                            <Text style={styles.logButtonText}>Log Interaction</Text>
+                            <Text style={[styles.logButtonText, { color: colors.primaryForeground }]}>Log Interaction</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             onPress={() => navigate(`/add-reminder/${contact.id}`)}
-                            style={styles.reminderButton}
+                            style={[styles.reminderButton, { backgroundColor: colors.card, borderColor: colors.primary }]}
                         >
                             <Bell size={20} color={COLORS.primary} style={{ marginRight: 8 }} />
-                            <Text style={styles.reminderButtonText}>Set Reminder</Text>
+                            <Text style={[styles.reminderButtonText, { color: colors.primary }]}>Set Reminder</Text>
                         </TouchableOpacity>
 
-                        <View style={styles.timeline}>
+                        <View style={[styles.timeline, { borderLeftColor: colors.border }]}>
                             {interactions.map((interaction) => (
                                 <View key={interaction.id} style={styles.timelineItem}>
-                                    <View style={styles.timelineDotContainer}>
-                                        <View style={styles.timelineDot} />
+                                    <View style={[styles.timelineDotContainer, { borderColor: colors.primary, backgroundColor: colors.background }]}>
+                                        <View style={[styles.timelineDot, { backgroundColor: colors.primary }]} />
                                     </View>
-                                    <View style={styles.interactionCard}>
-                                        <Text style={styles.interactionDate}>
+                                    <View style={[styles.interactionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                                        <Text style={[styles.interactionDate, { color: colors.mutedText }]}>
                                             {new Date(interaction.date).toLocaleDateString()}
                                         </Text>
-                                        <Text style={styles.interactionType}>{interaction.type}</Text>
-                                        <Text style={styles.interactionNotes}>{interaction.notes}</Text>
+                                        <Text style={[styles.interactionType, { color: colors.text }]}>{interaction.type}</Text>
+                                        <Text style={[styles.interactionNotes, { color: colors.text }]}>{interaction.notes}</Text>
                                         {interaction.location && (
                                             <View style={styles.locationContainer}>
-                                                <MapPin size={14} color="#64748B" style={{ marginRight: 4 }} />
-                                                <Text style={styles.locationText}>{interaction.location}</Text>
+                                                <MapPin size={14} color={colors.mutedText} style={{ marginRight: 4 }} />
+                                                <Text style={[styles.locationText, { color: colors.mutedText }]}>{interaction.location}</Text>
                                             </View>
                                         )}
                                     </View>
                                 </View>
                             ))}
                             {interactions.length === 0 && (
-                                <Text style={styles.emptyText}>No history yet. Start logging!</Text>
+                                <Text style={[styles.emptyText, { color: colors.mutedText }]}>No history yet. Start logging!</Text>
                             )}
                         </View>
                     </View>
@@ -316,18 +318,18 @@ export default function ContactProfileScreen() {
                 {activeTab === 'media' && (
                     <View style={styles.mediaContainer}>
                         <View style={styles.mediaFilter}>
-                            <TouchableOpacity style={styles.filterPillActive}><Text style={styles.filterTextActive}>All</Text></TouchableOpacity>
-                            <TouchableOpacity style={styles.filterPill}><Text style={styles.filterText}>Photos</Text></TouchableOpacity>
-                            <TouchableOpacity style={styles.filterPill}><Text style={styles.filterText}>Docs</Text></TouchableOpacity>
+                            <TouchableOpacity style={[styles.filterPillActive, { backgroundColor: colors.text }]}><Text style={[styles.filterTextActive, { color: colors.background }]}>All</Text></TouchableOpacity>
+                            <TouchableOpacity style={[styles.filterPill, { backgroundColor: colors.card, borderColor: colors.border }]}><Text style={[styles.filterText, { color: colors.mutedText }]}>Photos</Text></TouchableOpacity>
+                            <TouchableOpacity style={[styles.filterPill, { backgroundColor: colors.card, borderColor: colors.border }]}><Text style={[styles.filterText, { color: colors.mutedText }]}>Docs</Text></TouchableOpacity>
                         </View>
                         <View style={styles.mediaGrid}>
-                            <TouchableOpacity onPress={handleChooseMediaType} style={styles.addMediaButton}>
-                                <PlusCircle size={32} color="#94A3B8" />
+                            <TouchableOpacity onPress={handleChooseMediaType} style={[styles.addMediaButton, { backgroundColor: colors.secondary, borderColor: colors.border }]}>
+                                <PlusCircle size={32} color={colors.mutedText} />
                             </TouchableOpacity>
                             {mediaList.map((item) => (
                                 <TouchableOpacity
                                     key={item.id}
-                                    style={styles.mediaItem}
+                                    style={[styles.mediaItem, { backgroundColor: colors.input }]}
                                     onPress={() => handleOpenMedia(item)}
                                 >
                                     {item.type === 'Image' && (
@@ -364,13 +366,13 @@ export default function ContactProfileScreen() {
                 {/* INFO CONTENT */}
                 {activeTab === 'info' && (
                     <View style={styles.infoContainer}>
-                        <InfoItem label="Mobile" value={contact.mobileNumber} />
-                        <InfoItem label="Email" value={contact.email} />
-                        <InfoItem label="Birthday" value={contact.birthday} />
-                        <InfoItem label="Notes" value={contact.notes} />
+                        <InfoItem label="Mobile" value={contact.mobileNumber} colors={colors} />
+                        <InfoItem label="Email" value={contact.email} colors={colors} />
+                        <InfoItem label="Birthday" value={contact.birthday} colors={colors} />
+                        <InfoItem label="Notes" value={contact.notes} colors={colors} />
 
-                        <TouchableOpacity onPress={handleDelete} style={styles.deleteButton}>
-                            <Text style={styles.deleteButtonText}>Delete Contact</Text>
+                        <TouchableOpacity onPress={handleDelete} style={[styles.deleteButton, { backgroundColor: colors.secondary }]}>
+                            <Text style={[styles.deleteButtonText, { color: colors.destructive }]}>Delete Contact</Text>
                         </TouchableOpacity>
                     </View>
                 )}
@@ -380,40 +382,39 @@ export default function ContactProfileScreen() {
     );
 }
 
-const ActionButton = ({ icon, color, label, onPress }: any) => (
+const ActionButton = ({ icon, color, label, onPress, textColor }: any) => (
     <View style={styles.actionButtonContainer}>
         <TouchableOpacity onPress={onPress} style={[styles.actionButton, { backgroundColor: color }]}>
             {icon}
         </TouchableOpacity>
-        <Text style={styles.actionLabel}>{label}</Text>
+        <Text style={[styles.actionLabel, { color: textColor }]}>{label}</Text>
     </View>
 );
 
-const TabButton = ({ label, active, onPress }: any) => (
-    <TouchableOpacity onPress={onPress} style={[styles.tabButton, active && styles.activeTabButton]}>
-        <Text style={[styles.tabText, active && styles.activeTabText]}>{label}</Text>
+const TabButton = ({ label, active, onPress, colors }: any) => (
+    <TouchableOpacity onPress={onPress} style={[styles.tabButton, { borderBottomColor: active ? colors.primary : 'transparent' }, active && styles.activeTabButton]}>
+        <Text style={[styles.tabText, { color: active ? colors.primary : colors.mutedText }, active && styles.activeTabText]}>{label}</Text>
     </TouchableOpacity>
 );
 
-const InfoItem = ({ label, value }: any) => (
-    <View style={styles.infoItem}>
-        <Text style={styles.infoLabel}>{label}</Text>
-        <Text style={styles.infoValue}>{value || 'N/A'}</Text>
+const InfoItem = ({ label, value, colors }: any) => (
+    <View style={[styles.infoItem, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <Text style={[styles.infoLabel, { color: colors.mutedText }]}>{label}</Text>
+        <Text style={[styles.infoValue, { color: colors.text }]}>{value || 'N/A'}</Text>
     </View>
 );
 
 const styles = StyleSheet.create({
     loadingContainer: {
+        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
     layout: {
-        backgroundColor: COLORS.background,
+        flex: 1,
     },
     header: {
-        backgroundColor: '#FFFFFF',
         borderBottomWidth: 1,
-        borderBottomColor: COLORS.border,
         paddingBottom: 24,
         paddingTop: 8,
     },
@@ -423,7 +424,6 @@ const styles = StyleSheet.create({
         top: 16,
         zIndex: 10,
         padding: 8,
-        backgroundColor: '#F1F5F9',
         borderRadius: RADIUS.full,
     },
     editButton: {
@@ -432,7 +432,6 @@ const styles = StyleSheet.create({
         top: 16,
         zIndex: 10,
         padding: 8,
-        backgroundColor: '#F1F5F9',
         borderRadius: RADIUS.full,
     },
     profileInfo: {
@@ -442,7 +441,6 @@ const styles = StyleSheet.create({
     avatar: {
         width: 112,
         height: 112,
-        backgroundColor: '#E2E8F0',
         borderRadius: 56,
         alignItems: 'center',
         justifyContent: 'center',
@@ -457,15 +455,12 @@ const styles = StyleSheet.create({
     avatarText: {
         fontSize: 36,
         fontWeight: 'bold',
-        color: '#94A3B8',
     },
     name: {
         fontSize: FONT_SIZE.xxl,
         fontWeight: 'bold',
-        color: '#0F172A',
     },
     relationBadge: {
-        color: COLORS.primary,
         fontWeight: '500',
         marginTop: 4,
     },
@@ -492,48 +487,41 @@ const styles = StyleSheet.create({
     },
     actionLabel: {
         fontSize: FONT_SIZE.xs,
-        color: '#64748B',
     },
     tabs: {
         flexDirection: 'row',
-        backgroundColor: '#FFFFFF',
         borderBottomWidth: 1,
-        borderBottomColor: COLORS.border,
     },
     tabButton: {
         flex: 1,
         paddingVertical: 16,
         alignItems: 'center',
         borderBottomWidth: 2,
-        borderBottomColor: 'transparent',
     },
     activeTabButton: {
-        borderBottomColor: COLORS.primary,
+        // borderBottomColor handled by inline style
     },
     tabText: {
         fontWeight: 'bold',
         fontSize: FONT_SIZE.sm,
-        color: '#94A3B8',
     },
     activeTabText: {
-        color: COLORS.primary,
+        // color handled by inline style
     },
     content: {
         flex: 1,
-        backgroundColor: COLORS.background,
     },
     tabContent: {
         padding: 24,
     },
     logButton: {
-        backgroundColor: COLORS.primary,
         padding: 12,
         borderRadius: RADIUS.lg,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 16,
-        shadowColor: COLORS.primary,
+        shadowColor: COLORS.primary, // Keep primary for shadow
         shadowOpacity: 0.2,
         shadowRadius: 4,
         elevation: 2,
@@ -543,8 +531,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     reminderButton: {
-        backgroundColor: '#FFFFFF',
-        borderColor: COLORS.primary,
         borderWidth: 1,
         padding: 12,
         borderRadius: RADIUS.lg,
@@ -554,12 +540,10 @@ const styles = StyleSheet.create({
         marginBottom: 32,
     },
     reminderButtonText: {
-        color: COLORS.primary,
         fontWeight: 'bold',
     },
     timeline: {
         borderLeftWidth: 2,
-        borderLeftColor: '#E2E8F0',
         marginLeft: 16,
         paddingLeft: 32,
         paddingBottom: 40,
@@ -573,9 +557,7 @@ const styles = StyleSheet.create({
         left: -41,
         width: 24,
         height: 24,
-        backgroundColor: COLORS.background,
         borderWidth: 2,
-        borderColor: COLORS.primary,
         borderRadius: 12,
         alignItems: 'center',
         justifyContent: 'center',
@@ -583,11 +565,9 @@ const styles = StyleSheet.create({
     timelineDot: {
         width: 8,
         height: 8,
-        backgroundColor: COLORS.primary,
         borderRadius: 4,
     },
     interactionCard: {
-        backgroundColor: '#FFFFFF',
         padding: 16,
         borderRadius: RADIUS.lg,
         shadowColor: 'black',
@@ -595,11 +575,9 @@ const styles = StyleSheet.create({
         shadowRadius: 2,
         elevation: 1,
         borderWidth: 1,
-        borderColor: '#F1F5F9',
     },
     interactionDate: {
         fontSize: FONT_SIZE.xs,
-        color: '#94A3B8',
         fontWeight: '500',
         marginBottom: 4,
         textTransform: 'uppercase',
@@ -607,11 +585,9 @@ const styles = StyleSheet.create({
     interactionType: {
         fontSize: FONT_SIZE.lg,
         fontWeight: 'bold',
-        color: '#0F172A',
         marginBottom: 4,
     },
     interactionNotes: {
-        color: '#475569',
         fontSize: FONT_SIZE.base,
         lineHeight: 20,
     },
@@ -622,10 +598,8 @@ const styles = StyleSheet.create({
     },
     locationText: {
         fontSize: FONT_SIZE.xs,
-        color: '#64748B',
     },
     emptyText: {
-        color: '#94A3B8',
         fontStyle: 'italic',
     },
     mediaContainer: {
@@ -637,26 +611,21 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     filterPill: {
-        backgroundColor: '#FFFFFF',
         borderWidth: 1,
-        borderColor: '#E2E8F0',
         paddingHorizontal: 16,
         paddingVertical: 8,
         borderRadius: RADIUS.full,
     },
     filterPillActive: {
-        backgroundColor: '#1E293B',
         paddingHorizontal: 16,
         paddingVertical: 8,
         borderRadius: RADIUS.full,
     },
     filterText: {
-        color: '#475569',
         fontWeight: 'bold',
         fontSize: FONT_SIZE.xs,
     },
     filterTextActive: {
-        color: '#FFFFFF',
         fontSize: FONT_SIZE.xs,
         fontWeight: 'bold',
     },
@@ -668,18 +637,15 @@ const styles = StyleSheet.create({
     addMediaButton: {
         width: 112,
         height: 112,
-        backgroundColor: '#F1F5F9',
         borderRadius: RADIUS.lg,
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 2,
-        borderColor: '#CBD5E1',
         borderStyle: 'dashed',
     },
     mediaItem: {
         width: 112,
         height: 112,
-        backgroundColor: '#E2E8F0',
         borderRadius: RADIUS.lg,
         overflow: 'hidden',
     },
@@ -705,11 +671,9 @@ const styles = StyleSheet.create({
         gap: 16,
     },
     infoItem: {
-        backgroundColor: '#FFFFFF',
         padding: 16,
         borderRadius: RADIUS.lg,
         borderWidth: 1,
-        borderColor: '#F1F5F9',
     },
     infoLabel: {
         fontSize: FONT_SIZE.xs,
@@ -724,13 +688,11 @@ const styles = StyleSheet.create({
     },
     deleteButton: {
         marginTop: 32,
-        backgroundColor: '#FEF2F2', // red-50
         padding: 16,
         borderRadius: RADIUS.lg,
         alignItems: 'center',
     },
     deleteButtonText: {
-        color: '#EF4444',
         fontWeight: 'bold',
     },
 });

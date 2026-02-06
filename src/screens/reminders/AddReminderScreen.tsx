@@ -10,8 +10,10 @@ import { getContacts, getContactById } from '../../db/contacts';
 import { createCalendarEvent } from '../../utils/calendar';
 import { ArrowLeft, User, Search, X } from 'lucide-react-native';
 import { COLORS, SPACING, FONT_SIZE, RADIUS } from '../../constants/theme';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export default function AddReminderScreen() {
+    const { colors } = useTheme();
     const navigate = useNavigate();
     const { contactId } = useParams();
 
@@ -69,92 +71,77 @@ export default function AddReminderScreen() {
         <Layout style={styles.layout}>
             <ScrollView style={styles.scrollView}>
                 <TouchableOpacity onPress={() => navigate(-1)} style={styles.backButton}>
-                    <ArrowLeft size={24} color="#000" />
+                    <ArrowLeft size={24} color={colors.text} />
                 </TouchableOpacity>
 
-                <Text style={styles.title}>Add Reminder</Text>
+                <Text style={[styles.title, { color: colors.text }]}>Add Reminder</Text>
 
                 <View style={styles.form}>
                     {/* Contact Selection (Only if not pre-selected via URL) */}
                     {!contactId && (
                         <View style={styles.inputGroup}>
-                            <Text style={styles.label}>Contact</Text>
+                            <Text style={[styles.label, { color: colors.mutedText }]}>Contact</Text>
                             <TouchableOpacity
-                                style={styles.selector}
+                                style={[styles.selector, { backgroundColor: colors.input, borderColor: colors.border }]}
                                 onPress={() => setModalVisible(true)}
                             >
-                                <Text style={[styles.selectorText, !selectedContact && styles.placeholderText]}>
+                                <Text style={[styles.selectorText, !selectedContact && { color: colors.mutedText }, selectedContact && { color: colors.text }]}>
                                     {selectedContact ? `${selectedContact.firstName} ${selectedContact.lastName}` : 'Select a contact'}
                                 </Text>
-                                <User size={20} color="#94A3B8" />
+                                <User size={20} color={colors.mutedText} />
                             </TouchableOpacity>
                         </View>
                     )}
 
                     {/* Show selected contact name if pre-selected */}
                     {contactId && selectedContact && (
-                        <View style={styles.contactBadge}>
-                            <User size={16} color={COLORS.primary} />
-                            <Text style={styles.contactBadgeText}>
+                        <View style={[styles.contactBadge, { backgroundColor: colors.tealLight, borderColor: colors.primary }]}>
+                            <User size={16} color={colors.primary} />
+                            <Text style={[styles.contactBadgeText, { color: colors.primary }]}>
                                 For: {selectedContact.firstName} {selectedContact.lastName}
                             </Text>
                         </View>
                     )}
 
                     <View style={styles.inputGroup}>
-                        <Text style={styles.label}>Title</Text>
+                        <Text style={[styles.label, { color: colors.mutedText }]}>Title</Text>
                         <TextInput
-                            style={styles.input}
+                            style={[styles.input, { backgroundColor: colors.input, borderColor: colors.border, color: colors.text }]}
                             placeholder="e.g. Call for birthday"
                             value={title}
                             onChangeText={setTitle}
-                            placeholderTextColor="#94A3B8"
+                            placeholderTextColor={colors.mutedText}
                         />
                     </View>
 
                     <View style={styles.inputGroup}>
-                        <Text style={styles.label}>Date & Time</Text>
+                        <Text style={[styles.label, { color: colors.mutedText }]}>Date & Time</Text>
                         {Platform.OS === 'ios' ? (
                             <DateTimePicker
                                 value={date}
                                 mode="datetime"
-                                display="spinner"
-                                onChange={(e: any, d: Date | undefined) => d && setDate(d)}
+                                display="default"
+                                onChange={(event, selectedDate) => setDate(selectedDate || date)}
+                                style={[styles.input, { backgroundColor: colors.input }]}
                             />
                         ) : (
                             <TouchableOpacity
+                                style={[styles.input, { backgroundColor: colors.input, borderColor: colors.border }]}
                                 onPress={() => {
                                     DateTimePickerAndroid.open({
                                         value: date,
+                                        onChange: (event, selectedDate) => setDate(selectedDate || date),
                                         mode: 'date',
-                                        onChange: (event, selectedDate) => {
-                                            if (event.type === 'set' && selectedDate) {
-                                                // After date is selected, open time picker
-                                                DateTimePickerAndroid.open({
-                                                    value: selectedDate,
-                                                    mode: 'time',
-                                                    onChange: (timeEvent, selectedTime) => {
-                                                        if (timeEvent.type === 'set' && selectedTime) {
-                                                            setDate(selectedTime);
-                                                        }
-                                                    }
-                                                });
-                                            }
-                                        }
                                     });
                                 }}
-                                style={styles.input}
                             >
-                                <Text style={styles.dateText}>{date.toLocaleString()}</Text>
+                                <Text style={[styles.dateText, { color: colors.text }]}>{date.toLocaleString()}</Text>
                             </TouchableOpacity>
                         )}
                     </View>
 
-                    <TouchableOpacity
-                        style={styles.saveButton}
-                        onPress={handleSave}
-                    >
-                        <Text style={styles.saveButtonText}>Set Reminder</Text>
+                    <TouchableOpacity style={[styles.saveButton, { backgroundColor: colors.primary }]} onPress={handleSave}>
+                        <Text style={[styles.saveButtonText, { color: colors.primaryForeground }]}>Save Reminder</Text>
                     </TouchableOpacity>
                 </View>
             </ScrollView>
@@ -188,14 +175,12 @@ export default function AddReminderScreen() {
                     />
                 </View>
             </Modal>
-        </Layout>
+        </Layout >
     );
 }
 
 const styles = StyleSheet.create({
-    layout: {
-        backgroundColor: COLORS.background,
-    },
+    layout: {},
     scrollView: {
         flex: 1,
         padding: 24,
@@ -222,17 +207,12 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     input: {
-        backgroundColor: '#FFFFFF',
         borderWidth: 1,
-        borderColor: COLORS.border,
         borderRadius: RADIUS.md,
         padding: 12,
-        color: '#0F172A',
         fontSize: FONT_SIZE.base,
     },
-    dateText: {
-        color: '#0F172A',
-    },
+    dateText: {},
     saveButton: {
         backgroundColor: COLORS.primary,
         padding: 16,
@@ -241,38 +221,51 @@ const styles = StyleSheet.create({
         marginTop: 24,
     },
     saveButtonText: {
-        color: '#FFFFFF',
+        // color: '#FFFFFF', // Replaced by theme color
         fontWeight: 'bold',
         fontSize: FONT_SIZE.lg,
     },
     selector: {
-        backgroundColor: '#FFFFFF',
+        // backgroundColor: '#FFFFFF', // Replaced by theme color
         borderWidth: 1,
-        borderColor: COLORS.border,
+        // borderColor: COLORS.border, // Replaced by theme color
         borderRadius: RADIUS.md,
-        padding: 12,
+        padding: 16, // Changed from 12
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
     },
     selectorText: {
         fontSize: FONT_SIZE.base,
-        color: '#0F172A',
+        // color: '#0F172A', // Replaced by theme color
     },
     placeholderText: {
-        color: '#94A3B8',
+        // color: '#94A3B8', // Replaced by theme color
     },
-    contactBadge: {
+    selectedContact: { // New style block
+        borderRadius: RADIUS.md,
+        padding: 12,
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
-        backgroundColor: '#F0FDFA',
-        padding: 8,
-        borderRadius: RADIUS.md,
+        gap: 12,
+        // backgroundColor: '#F0FDFA', // Replaced by theme color
+        // padding: 8, // Removed, now part of padding: 12
+        // borderRadius: RADIUS.md, // Already present
         alignSelf: 'flex-start',
         paddingHorizontal: 12,
         borderWidth: 1,
-        borderColor: COLORS.tealLight,
+        // borderColor: COLORS.tealLight, // Replaced by theme color
+        marginBottom: 8,
+    },
+    contactBadge: {
+        borderRadius: RADIUS.md,
+        padding: 12,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        alignSelf: 'flex-start',
+        paddingHorizontal: 12,
+        borderWidth: 1,
         marginBottom: 8,
     },
     contactBadgeText: {

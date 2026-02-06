@@ -1,40 +1,42 @@
 
-import { View, Text, TouchableOpacity, Dimensions, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigate } from 'react-router-native';
 import { Shield, Users, Clock, Bell } from 'lucide-react-native';
 import { useState } from 'react';
 import { COLORS, SPACING, FONT_SIZE, RADIUS } from '../../constants/theme';
-
-const SLIDES = [
-    {
-        id: 1,
-        title: 'Manage Relationships',
-        desc: 'Keep track of your personal and professional network in one secure place.',
-        icon: <Users size={64} color={COLORS.primary} />
-    },
-    {
-        id: 2,
-        title: 'Track Interactions',
-        desc: 'Log calls, meetings, and notes to never forget a detail.',
-        icon: <Clock size={64} color={COLORS.primary} />
-    },
-    {
-        id: 3,
-        title: 'Secure Vault',
-        desc: 'Keep private contacts hidden behind biometric security.',
-        icon: <Shield size={64} color={COLORS.primary} />
-    },
-    {
-        id: 4,
-        title: 'Smart Reminders',
-        desc: 'Get notified for birthdays and follow-ups automatically.',
-        icon: <Bell size={64} color={COLORS.primary} />
-    }
-];
+import { useTheme } from '../../contexts/ThemeContext';
 
 export default function OnboardingScreen() {
+    const { colors } = useTheme();
     const navigate = useNavigate();
     const [currentSlide, setCurrentSlide] = useState(0);
+
+    const SLIDES = [
+        {
+            id: 1,
+            title: 'Manage Relationships',
+            desc: 'Keep track of your personal and professional network in one secure place.',
+            icon: <Users size={64} color={colors.primary} />
+        },
+        {
+            id: 2,
+            title: 'Track Interactions',
+            desc: 'Log calls, meetings, and notes to never forget a detail.',
+            icon: <Clock size={64} color={colors.primary} />
+        },
+        {
+            id: 3,
+            title: 'Secure Vault',
+            desc: 'Keep private contacts hidden behind biometric security.',
+            icon: <Shield size={64} color={colors.primary} />
+        },
+        {
+            id: 4,
+            title: 'Smart Reminders',
+            desc: 'Get notified for birthdays and follow-ups automatically.',
+            icon: <Bell size={64} color={colors.primary} />
+        }
+    ];
 
     const handleNext = () => {
         if (currentSlide < SLIDES.length - 1) {
@@ -45,47 +47,42 @@ export default function OnboardingScreen() {
     };
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
             <View style={styles.content}>
-                <View style={styles.iconContainer}>
+                <View style={[styles.iconContainer, { backgroundColor: colors.tealLight }]}>
                     {SLIDES[currentSlide].icon}
                 </View>
-                <Text style={styles.title}>
-                    {SLIDES[currentSlide].title}
-                </Text>
-                <Text style={styles.description}>
-                    {SLIDES[currentSlide].desc}
-                </Text>
+                <Text style={[styles.title, { color: colors.text }]}>{SLIDES[currentSlide].title}</Text>
+                <Text style={[styles.desc, { color: colors.mutedText }]}>{SLIDES[currentSlide].desc}</Text>
             </View>
 
             <View style={styles.footer}>
-                <View style={styles.pagination}>
-                    {SLIDES.map((_, index) => (
+                <View style={styles.dots}>
+                    {SLIDES.map((_, i) => (
                         <View
-                            key={index}
+                            key={i}
                             style={[
                                 styles.dot,
-                                index === currentSlide ? styles.activeDot : styles.inactiveDot
+                                { backgroundColor: i === currentSlide ? colors.primary : colors.border }
                             ]}
                         />
                     ))}
                 </View>
 
                 <TouchableOpacity
-                    style={styles.button}
+                    style={[styles.button, { backgroundColor: colors.primary, shadowColor: colors.primary }]}
                     onPress={handleNext}
                 >
-                    <Text style={styles.buttonText}>
+                    <Text style={[styles.buttonText, { color: colors.primaryForeground }]}>
                         {currentSlide === SLIDES.length - 1 ? 'Get Started' : 'Next'}
                     </Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity
-                    style={styles.skipButton}
-                    onPress={() => navigate('/app/contacts')}
-                >
-                    <Text style={styles.skipText}>Skip</Text>
-                </TouchableOpacity>
+                {currentSlide < SLIDES.length - 1 && (
+                    <TouchableOpacity onPress={() => navigate('/app/contacts')}>
+                        <Text style={[styles.skipText, { color: colors.mutedText }]}>Skip</Text>
+                    </TouchableOpacity>
+                )}
             </View>
         </View>
     );
@@ -94,82 +91,63 @@ export default function OnboardingScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: COLORS.background,
     },
     content: {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        padding: SPACING.xl,
+        paddingHorizontal: 32,
     },
     iconContainer: {
-        width: 160,
-        height: 160,
-        backgroundColor: COLORS.tealLight,
-        borderRadius: 80,
+        width: 128,
+        height: 128,
+        borderRadius: 64,
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: SPACING.xl,
+        marginBottom: 32,
     },
     title: {
         fontSize: FONT_SIZE.xxxl,
         fontWeight: 'bold',
-        color: COLORS.text,
+        marginBottom: 16,
         textAlign: 'center',
-        marginBottom: SPACING.md,
     },
-    description: {
-        color: COLORS.mutedText,
+    desc: {
+        fontSize: FONT_SIZE.base,
         textAlign: 'center',
-        fontSize: FONT_SIZE.lg,
-        lineHeight: 28,
+        lineHeight: 24,
     },
     footer: {
-        padding: SPACING.xl,
-        width: '100%',
+        paddingHorizontal: 32,
+        paddingBottom: 48,
+        alignItems: 'center',
     },
-    pagination: {
+    dots: {
         flexDirection: 'row',
-        justifyContent: 'center',
-        marginBottom: SPACING.xl,
+        marginBottom: 32,
         gap: 8,
     },
     dot: {
+        width: 8,
         height: 8,
         borderRadius: 4,
     },
-    activeDot: {
-        backgroundColor: COLORS.primary,
-        width: 32,
-    },
-    inactiveDot: {
-        backgroundColor: '#CBD5E1', // slate-300
-        width: 8,
-    },
     button: {
-        backgroundColor: COLORS.primary,
         width: '100%',
-        paddingVertical: SPACING.md,
-        borderRadius: RADIUS.md,
+        paddingVertical: 16,
+        borderRadius: RADIUS.lg,
         alignItems: 'center',
-        shadowColor: COLORS.primary,
-        shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 8,
+        shadowOffset: { width: 0, height: 4 },
         elevation: 4,
     },
     buttonText: {
-        color: COLORS.primaryForeground,
-        fontWeight: 'bold',
         fontSize: FONT_SIZE.lg,
-    },
-    skipButton: {
-        marginTop: SPACING.md,
-        paddingVertical: SPACING.sm,
-        alignItems: 'center',
+        fontWeight: 'bold',
     },
     skipText: {
-        color: COLORS.mutedText,
-        fontWeight: 'medium',
+        marginTop: 16,
+        fontSize: FONT_SIZE.sm,
     },
 });

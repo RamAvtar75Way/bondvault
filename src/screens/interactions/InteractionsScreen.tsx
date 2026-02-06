@@ -9,8 +9,10 @@ import { eq, desc } from 'drizzle-orm';
 import { Phone, MapPin, MessageCircle, FileText, Search } from 'lucide-react-native';
 import { format } from 'date-fns';
 import { COLORS, SPACING, FONT_SIZE, RADIUS } from '../../constants/theme';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export default function InteractionsScreen() {
+    const { colors } = useTheme();
     const [items, setItems] = useState<any[]>([]);
     const [refreshing, setRefreshing] = useState(false);
     const [filterType, setFilterType] = useState('All');
@@ -63,15 +65,15 @@ export default function InteractionsScreen() {
     return (
         <Layout style={styles.layout}>
             {/* Header */}
-            <View style={styles.header}>
-                <Text style={styles.title}>Timeline</Text>
+            <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
+                <Text style={[styles.title, { color: colors.text }]}>Timeline</Text>
 
-                <View style={styles.searchBar}>
-                    <Search size={20} color="#94A3B8" />
+                <View style={[styles.searchBar, { backgroundColor: colors.input, borderColor: colors.border, borderWidth: 1 }]}>
+                    <Search size={20} color={colors.mutedText} />
                     <TextInput
-                        style={styles.searchInput}
+                        style={[styles.searchInput, { color: colors.text }]}
                         placeholder="Search timeline..."
-                        placeholderTextColor="#94A3B8"
+                        placeholderTextColor={colors.mutedText}
                         value={searchQuery}
                         onChangeText={setSearchQuery}
                     />
@@ -84,12 +86,12 @@ export default function InteractionsScreen() {
                             onPress={() => setFilterType(t)}
                             style={[
                                 styles.filterPill,
-                                filterType === t ? styles.activeFilterPill : styles.inactiveFilterPill
+                                filterType === t ? { backgroundColor: colors.primary, borderColor: colors.primary } : { backgroundColor: colors.card, borderColor: colors.border }
                             ]}
                         >
                             <Text style={[
                                 styles.filterText,
-                                filterType === t ? styles.activeFilterText : styles.inactiveFilterText
+                                { color: filterType === t ? colors.primaryForeground : colors.mutedText }
                             ]}>{t}</Text>
                         </TouchableOpacity>
                     ))}
@@ -102,14 +104,14 @@ export default function InteractionsScreen() {
             >
                 {filteredItems.length === 0 ? (
                     <View style={styles.emptyState}>
-                        <Text style={styles.emptyText}>No interactions found.</Text>
+                        <Text style={[styles.emptyText, { color: colors.mutedText }]}>No interactions found.</Text>
                     </View>
                 ) : (
                     <View style={styles.listContainer}>
                         {filteredItems.map((item) => (
                             <TouchableOpacity
                                 key={item.id}
-                                style={styles.card}
+                                style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}
                                 onPress={() => navigate(`/contact/${item.contactId}`)}
                             >
                                 <View style={styles.cardHeader}>
@@ -125,17 +127,17 @@ export default function InteractionsScreen() {
                                             {item.type === 'Note' && <FileText size={14} color="#1E293B" />}
                                         </View>
                                         <View>
-                                            <Text style={styles.contactName}>
+                                            <Text style={[styles.contactName, { color: colors.text }]}>
                                                 {item.contactFirstName} {item.contactLastName}
                                             </Text>
-                                            <Text style={styles.interactionType}>{item.type}</Text>
+                                            <Text style={[styles.interactionType, { color: colors.mutedText }]}>{item.type}</Text>
                                         </View>
                                     </View>
-                                    <Text style={styles.dateText}>
+                                    <Text style={[styles.dateText, { color: colors.mutedText }]}>
                                         {format(new Date(item.date), 'MMM d, h:mm a')}
                                     </Text>
                                 </View>
-                                <Text style={styles.notesText} numberOfLines={2}>
+                                <Text style={[styles.notesText, { color: colors.mutedText }]} numberOfLines={2}>
                                     {item.notes}
                                 </Text>
                             </TouchableOpacity>
@@ -148,27 +150,21 @@ export default function InteractionsScreen() {
 }
 
 const styles = StyleSheet.create({
-    layout: {
-        backgroundColor: COLORS.background,
-    },
+    layout: {},
     header: {
         paddingTop: 8,
         paddingBottom: 16,
         paddingHorizontal: 24,
-        backgroundColor: '#FFFFFF',
         borderBottomWidth: 1,
-        borderBottomColor: COLORS.border,
     },
     title: {
         fontSize: FONT_SIZE.xxl,
         fontWeight: 'bold',
-        color: '#0F172A',
         marginBottom: 16,
     },
     searchBar: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#F1F5F9',
         borderRadius: RADIUS.full,
         paddingHorizontal: 16,
         paddingVertical: 8,
@@ -178,7 +174,6 @@ const styles = StyleSheet.create({
         flex: 1,
         marginLeft: 8,
         fontSize: FONT_SIZE.base,
-        color: '#1E293B',
     },
     filterContainer: {
         flexDirection: 'row',
@@ -190,23 +185,9 @@ const styles = StyleSheet.create({
         borderRadius: RADIUS.full,
         borderWidth: 1,
     },
-    activeFilterPill: {
-        backgroundColor: COLORS.primary,
-        borderColor: COLORS.primary,
-    },
-    inactiveFilterPill: {
-        backgroundColor: '#FFFFFF',
-        borderColor: '#E2E8F0',
-    },
     filterText: {
         fontSize: FONT_SIZE.xs,
         fontWeight: 'bold',
-    },
-    activeFilterText: {
-        color: '#FFFFFF',
-    },
-    inactiveFilterText: {
-        color: '#475569',
     },
     scrollView: {
         flex: 1,
@@ -217,19 +198,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    emptyText: {
-        color: '#94A3B8',
-    },
+    emptyText: {},
     listContainer: {
         paddingBottom: 80,
         gap: 16,
     },
     card: {
-        backgroundColor: '#FFFFFF',
         padding: 16,
         borderRadius: RADIUS.lg,
         borderWidth: 1,
-        borderColor: '#F1F5F9',
         shadowColor: 'black',
         shadowOpacity: 0.05,
         shadowRadius: 2,
@@ -257,20 +234,16 @@ const styles = StyleSheet.create({
     bgOrange: { backgroundColor: '#FFEDD5' },
     bgBlue: { backgroundColor: '#DBEAFE' },
     contactName: {
-        color: '#0F172A',
         fontWeight: 'bold',
         fontSize: FONT_SIZE.base,
     },
     interactionType: {
-        color: '#64748B',
         fontSize: FONT_SIZE.xs,
     },
     dateText: {
-        color: '#94A3B8',
         fontSize: FONT_SIZE.xs,
     },
     notesText: {
-        color: '#475569',
         lineHeight: 20,
         paddingLeft: 44,
     },

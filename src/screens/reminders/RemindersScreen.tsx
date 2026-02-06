@@ -9,8 +9,10 @@ import { eq, asc } from 'drizzle-orm';
 import { Bell, CheckCircle, Circle, Plus } from 'lucide-react-native';
 import { format, isPast, isToday, isTomorrow } from 'date-fns';
 import { COLORS, SPACING, FONT_SIZE, RADIUS } from '../../constants/theme';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export default function RemindersScreen() {
+    const { colors } = useTheme();
     const [items, setItems] = useState<any[]>([]);
     const [refreshing, setRefreshing] = useState(false);
     const navigate = useNavigate();
@@ -70,10 +72,10 @@ export default function RemindersScreen() {
     return (
         <Layout style={styles.layout}>
             {/* Header */}
-            <View style={styles.header}>
-                <Text style={styles.title}>Reminders</Text>
+            <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
+                <Text style={[styles.title, { color: colors.text }]}>Reminders</Text>
                 <TouchableOpacity onPress={() => navigate('/add-reminder')} style={styles.addButton}>
-                    <Plus size={24} color={COLORS.primary} />
+                    <Plus size={24} color={colors.primary} />
                 </TouchableOpacity>
             </View>
 
@@ -83,9 +85,9 @@ export default function RemindersScreen() {
             >
                 {items.length === 0 ? (
                     <View style={styles.emptyState}>
-                        <Bell size={48} color="#CBD5E1" style={{ marginBottom: 16 }} />
-                        <Text style={styles.emptyText}>No reminders set.</Text>
-                        <Text style={styles.emptySubtext}>Add one from a contact profile.</Text>
+                        <Bell size={48} color={colors.mutedText} style={{ marginBottom: 16 }} />
+                        <Text style={[styles.emptyText, { color: colors.text }]}>No reminders set.</Text>
+                        <Text style={[styles.emptySubtext, { color: colors.mutedText }]}>Add one from a contact profile.</Text>
                     </View>
                 ) : (
                     <View style={styles.listContainer}>
@@ -97,15 +99,15 @@ export default function RemindersScreen() {
                                 <View key={section} style={styles.section}>
                                     <Text style={[
                                         styles.sectionTitle,
-                                        section === 'Overdue' ? styles.sectionTitleOverdue : styles.sectionTitleNormal
+                                        { color: section === 'Overdue' ? colors.destructive : colors.mutedText }
                                     ]}>{section}</Text>
 
-                                    <View style={styles.card}>
+                                    <View style={[styles.card, { backgroundColor: colors.card }]}>
                                         {sectionItems.map((item: any, index: number) => (
                                             <View key={item.id}>
                                                 <View style={styles.itemRow}>
                                                     <TouchableOpacity onPress={() => toggleComplete(item.id, item.completed)} style={styles.checkButton}>
-                                                        {item.completed ? <CheckCircle size={24} color={COLORS.primary} /> : <Circle size={24} color="#CBD5E1" />}
+                                                        {item.completed ? <CheckCircle size={24} color={colors.primary} /> : <Circle size={24} color={colors.border} />}
                                                     </TouchableOpacity>
 
                                                     <TouchableOpacity
@@ -114,21 +116,22 @@ export default function RemindersScreen() {
                                                     >
                                                         <Text style={[
                                                             styles.itemTitle,
-                                                            item.completed && styles.itemTitleCompleted
+                                                            { color: colors.text },
+                                                            item.completed && { textDecorationLine: 'line-through', opacity: 0.5 }
                                                         ]}>
                                                             {item.title}
                                                         </Text>
                                                         <View style={styles.itemMeta}>
-                                                            <Text style={styles.contactName}>
+                                                            <Text style={[styles.contactName, { color: colors.mutedText }]}>
                                                                 {item.contactFirstName} {item.contactLastName}
                                                             </Text>
-                                                            <Text style={styles.dateText}>
+                                                            <Text style={[styles.dateText, { color: colors.mutedText }]}>
                                                                 {format(new Date(item.date), 'MMM d, h:mm a')}
                                                             </Text>
                                                         </View>
                                                     </TouchableOpacity>
                                                 </View>
-                                                {index < sectionItems.length - 1 && <View style={styles.divider} />}
+                                                {index < sectionItems.length - 1 && <View style={[styles.divider, { backgroundColor: colors.border }]} />}
                                             </View>
                                         ))}
                                     </View>
@@ -143,16 +146,12 @@ export default function RemindersScreen() {
 }
 
 const styles = StyleSheet.create({
-    layout: {
-        backgroundColor: COLORS.background,
-    },
+    layout: {},
     header: {
         paddingTop: 8,
         paddingBottom: 16,
         paddingHorizontal: 24,
-        backgroundColor: '#FFFFFF',
         borderBottomWidth: 1,
-        borderBottomColor: COLORS.border,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',

@@ -9,8 +9,10 @@ import { eq } from 'drizzle-orm';
 import { Lock, ArrowLeft, Shield } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, SPACING, FONT_SIZE, RADIUS } from '../../constants/theme';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export default function VaultScreen() {
+    const { colors, colorScheme } = useTheme();
     const [privateContacts, setPrivateContacts] = useState<any[]>([]);
     const navigate = useNavigate();
 
@@ -22,10 +24,15 @@ export default function VaultScreen() {
         fetchPrivateContacts();
     }, []);
 
+    // Vault always uses dark gradient for security aesthetic
+    const gradientColors = colorScheme === 'dark'
+        ? ['#0F172A', '#1E1B4B']
+        : ['#1E293B', '#312E81'];
+
     return (
         <View style={styles.container}>
             <LinearGradient
-                colors={['#0F172A', '#1E1B4B']}
+                colors={gradientColors}
                 style={StyleSheet.absoluteFill}
             />
             <Layout style={styles.layout}>
@@ -99,9 +106,12 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     backButton: {
-        padding: 8,
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-        borderRadius: RADIUS.full,
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     badge: {
         flexDirection: 'row',
@@ -119,9 +129,7 @@ const styles = StyleSheet.create({
     badgeText: {
         color: '#F59E0B',
         fontWeight: 'bold',
-        letterSpacing: 1,
-        fontSize: FONT_SIZE.xs,
-        textTransform: 'uppercase',
+        fontSize: FONT_SIZE.sm,
     },
     spacer: {
         width: 40,
@@ -132,73 +140,69 @@ const styles = StyleSheet.create({
     },
     shieldContainer: {
         alignItems: 'center',
-        marginBottom: 32,
+        paddingVertical: 32,
     },
     shieldIcon: {
-        marginBottom: 8,
-        opacity: 0.8,
+        marginBottom: 16,
     },
     shieldText: {
-        color: '#94A3B8',
-        fontSize: FONT_SIZE.sm,
+        color: '#F59E0B',
+        fontSize: FONT_SIZE.base,
+        fontWeight: '600',
     },
     emptyState: {
-        height: 160,
-        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-        borderRadius: RADIUS.lg,
+        paddingVertical: 64,
         alignItems: 'center',
-        justifyContent: 'center',
-        borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.1)',
     },
     emptyText: {
-        color: '#64748B',
+        color: '#94A3B8',
+        fontSize: FONT_SIZE.base,
     },
     listContainer: {
         paddingBottom: 80,
-        gap: 16,
+        gap: 12,
     },
     card: {
+        flexDirection: 'row',
+        alignItems: 'center',
         backgroundColor: 'rgba(255, 255, 255, 0.05)',
         padding: 16,
         borderRadius: RADIUS.lg,
         borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.1)',
-        flexDirection: 'row',
-        alignItems: 'center',
+        borderColor: 'rgba(245, 158, 11, 0.2)',
     },
     avatarContainer: {
         width: 48,
         height: 48,
+        borderRadius: 24,
         backgroundColor: 'rgba(245, 158, 11, 0.2)',
-        borderRadius: RADIUS.full,
         alignItems: 'center',
         justifyContent: 'center',
-        marginRight: 16,
-        borderWidth: 1,
-        borderColor: 'rgba(245, 158, 11, 0.3)',
-        overflow: 'hidden',
+        marginRight: 12,
+        borderWidth: 2,
+        borderColor: '#F59E0B',
     },
     avatarImage: {
-        width: '100%',
-        height: '100%',
+        width: 48,
+        height: 48,
+        borderRadius: 24,
     },
     avatarText: {
         color: '#F59E0B',
-        fontWeight: 'bold',
         fontSize: FONT_SIZE.lg,
+        fontWeight: 'bold',
     },
     info: {
         flex: 1,
     },
     name: {
-        fontSize: FONT_SIZE.lg,
+        color: '#FFFFFF',
+        fontSize: FONT_SIZE.base,
         fontWeight: 'bold',
-        color: '#E2E8F0',
+        marginBottom: 4,
     },
     relation: {
-        color: '#64748B',
-        fontSize: FONT_SIZE.xs,
-        marginTop: 2,
+        color: '#94A3B8',
+        fontSize: FONT_SIZE.sm,
     },
 });

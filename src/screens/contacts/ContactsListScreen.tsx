@@ -4,11 +4,13 @@ import { useEffect, useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-native';
 import { getContacts } from '../../db/contacts';
 import { Plus, Lock, Search, Filter, Settings, Phone, MoreVertical, Briefcase, Heart, Users, Check } from 'lucide-react-native';
-import { COLORS, SPACING, FONT_SIZE, RADIUS } from '../../constants/theme';
+import { COLORS, SPACING, FONT_SIZE, RADIUS, SHADOWS, FONT_WEIGHT } from '../../constants/theme';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const RELATION_TYPES = ['All', 'Family', 'Friend', 'Work', 'Client', 'Other'];
 
 export default function HomeScreen() {
+  const { colors } = useTheme();
   const [contacts, setContacts] = useState<any[]>([]);
   const [filteredContacts, setFilteredContacts] = useState<any[]>([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -63,29 +65,29 @@ export default function HomeScreen() {
   return (
     <Layout style={styles.layout}>
       {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.searchBar}>
-          <Search size={20} color="#94A3B8" />
+      <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
+        <View style={[styles.searchBar, { backgroundColor: colors.input, borderColor: colors.border, borderWidth: 1 }]}>
+          <Search size={20} color={colors.mutedText} />
           <TextInput
-            style={styles.searchInput}
+            style={[styles.searchInput, { color: colors.text }]}
             placeholder="Search contacts..."
-            placeholderTextColor="#94A3B8"
+            placeholderTextColor={colors.mutedText}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
         </View>
         <View style={styles.actions}>
           <TouchableOpacity
-            style={[styles.iconButton, activeFilter !== 'All' && styles.activeFilter]}
+            style={[styles.iconButton, activeFilter !== 'All' && { backgroundColor: colors.tealLight }]}
             onPress={() => setFilterVisible(true)}
           >
-            <Filter size={24} color={activeFilter !== 'All' ? COLORS.primary : COLORS.text} />
+            <Filter size={24} color={activeFilter !== 'All' ? colors.primary : colors.text} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.iconButton} onPress={() => navigate('/add-contact')}>
-            <Plus size={24} color={COLORS.primary} />
+            <Plus size={24} color={colors.primary} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.iconButton} onPress={() => setMenuVisible(true)}>
-            <MoreVertical size={24} color={COLORS.text} />
+            <MoreVertical size={24} color={colors.text} />
           </TouchableOpacity>
         </View>
       </View>
@@ -95,12 +97,12 @@ export default function HomeScreen() {
         <TouchableWithoutFeedback onPress={() => setFilterVisible(false)}>
           <View style={styles.modalOverlay}>
             <TouchableWithoutFeedback>
-              <View style={styles.filterMenu}>
-                <Text style={styles.menuTitle}>Filter by Relationship</Text>
+              <View style={[styles.filterMenu, { backgroundColor: colors.card }]}>
+                <Text style={[styles.menuTitle, { color: colors.text }]}>Filter by Relationship</Text>
                 {RELATION_TYPES.map(type => (
                   <TouchableOpacity
                     key={type}
-                    style={styles.filterOption}
+                    style={[styles.filterOption, { borderBottomColor: colors.border }]}
                     onPress={() => {
                       setActiveFilter(type);
                       setFilterVisible(false);
@@ -108,11 +110,12 @@ export default function HomeScreen() {
                   >
                     <Text style={[
                       styles.filterOptionText,
-                      activeFilter === type && styles.activeFilterText
+                      { color: colors.text },
+                      activeFilter === type && { color: colors.primary, fontWeight: '600' }
                     ]}>
                       {type}
                     </Text>
-                    {activeFilter === type && <Check size={16} color={COLORS.primary} />}
+                    {activeFilter === type && <Check size={16} color={colors.primary} />}
                   </TouchableOpacity>
                 ))}
               </View>
@@ -126,27 +129,27 @@ export default function HomeScreen() {
         <TouchableWithoutFeedback onPress={() => setMenuVisible(false)}>
           <View style={styles.modalOverlay}>
             <TouchableWithoutFeedback>
-              <View style={[styles.menuDropdown, { top: 60, right: 16 }]}>
+              <View style={[styles.menuDropdown, { top: 60, right: 16, backgroundColor: colors.card, borderColor: colors.border }]}>
                 <TouchableOpacity
-                  style={styles.menuItem}
+                  style={[styles.menuItem, { borderBottomColor: colors.border }]}
                   onPress={() => handleMenuAction(() => navigate('/import-contacts'))}
                 >
-                  <Plus size={20} color={COLORS.text} style={styles.menuIcon} />
-                  <Text style={styles.menuText}>Import Contacts</Text>
+                  <Plus size={20} color={colors.text} style={styles.menuIcon} />
+                  <Text style={[styles.menuText, { color: colors.text }]}>Import Contacts</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={styles.menuItem}
+                  style={[styles.menuItem, { borderBottomColor: colors.border }]}
                   onPress={() => handleMenuAction(() => navigate('/vault-auth'))}
                 >
-                  <Lock size={20} color={COLORS.text} style={styles.menuIcon} />
-                  <Text style={styles.menuText}>Secure Vault</Text>
+                  <Lock size={20} color={colors.text} style={styles.menuIcon} />
+                  <Text style={[styles.menuText, { color: colors.text }]}>Secure Vault</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={[styles.menuItem, styles.borderTop]}
+                  style={[styles.menuItem, { borderTopWidth: 1, borderTopColor: colors.border }]}
                   onPress={() => handleMenuAction(() => navigate('/app/settings'))}
                 >
-                  <Settings size={20} color={COLORS.text} style={styles.menuIcon} />
-                  <Text style={styles.menuText}>Settings</Text>
+                  <Settings size={20} color={colors.text} style={styles.menuIcon} />
+                  <Text style={[styles.menuText, { color: colors.text }]}>Settings</Text>
                 </TouchableOpacity>
               </View>
             </TouchableWithoutFeedback>
@@ -154,32 +157,36 @@ export default function HomeScreen() {
         </TouchableWithoutFeedback>
       </Modal>
 
+      {/* Contacts List */}
       <ScrollView
         style={styles.scrollView}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
-        <Text style={styles.sectionTitle}>My Network</Text>
-
         {filteredContacts.length === 0 ? (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyText}>
+            <Users size={48} color={colors.mutedText} style={{ marginBottom: 16 }} />
+            <Text style={[styles.emptyText, { color: colors.text }]}>
               {searchQuery || activeFilter !== 'All' ? 'No matching contacts.' : 'No contacts yet.'}
             </Text>
+            {(!searchQuery && activeFilter === 'All') && (
+              <Text style={[styles.emptyText, { color: colors.mutedText, marginTop: 8 }]}>Add your first contact to get started.</Text>
+            )}
           </View>
         ) : (
           <View style={styles.contactList}>
+            <Text style={[styles.sectionTitle, { color: colors.mutedText }]}>My Network</Text>
             {filteredContacts.map((contact) => (
               <TouchableOpacity
                 key={contact.id}
-                style={styles.contactCard}
+                style={[styles.contactCard, { backgroundColor: colors.card }]}
                 onPress={() => navigate(`/contact/${contact.id}`)}
               >
                 {/* Avatar */}
-                <View style={styles.avatar}>
+                <View style={[styles.avatar, { backgroundColor: colors.tealLight, borderColor: colors.primary }]}>
                   {contact.profileImageUri ? (
                     <Image source={{ uri: contact.profileImageUri }} style={styles.avatarImage} />
                   ) : (
-                    <Text style={styles.avatarText}>
+                    <Text style={[styles.avatarText, { color: colors.primary }]}>
                       {contact.firstName[0]}{contact.lastName ? contact.lastName[0] : ''}
                     </Text>
                   )}
@@ -187,9 +194,9 @@ export default function HomeScreen() {
 
                 {/* Info */}
                 <View style={styles.contactInfo}>
-                  <Text style={styles.contactName}>{contact.firstName} {contact.lastName}</Text>
+                  <Text style={[styles.contactName, { color: colors.text }]}>{contact.firstName} {contact.lastName}</Text>
                   <View style={styles.contactMeta}>
-                    <Text style={styles.metaText}>
+                    <Text style={[styles.metaText, { color: colors.mutedText }]}>
                       {contact.relationType || 'Friend'} • Last spoke: 2 days ago
                     </Text>
                   </View>
@@ -206,7 +213,7 @@ export default function HomeScreen() {
                     }
                   }}
                 >
-                  <Phone size={18} color={COLORS.primary} />
+                  <Phone size={18} color={colors.primary} />
                 </TouchableOpacity>
               </TouchableOpacity>
             ))}
@@ -219,9 +226,7 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  layout: {
-    backgroundColor: COLORS.background,
-  },
+  layout: {},
   header: {
     backgroundColor: COLORS.card,
     borderBottomWidth: 1,
@@ -236,18 +241,20 @@ const styles = StyleSheet.create({
   searchBar: {
     flex: 1,
     marginRight: 12,
-    backgroundColor: '#F1F5F9', // slate-100
+    backgroundColor: COLORS.input,
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: RADIUS.full,
-    paddingHorizontal: 16,
+    paddingHorizontal: SPACING.md,
     paddingVertical: 10,
+    ...SHADOWS.sm,
   },
   searchInput: {
     flex: 1,
-    marginLeft: 8,
+    marginLeft: SPACING.sm,
     fontSize: FONT_SIZE.base,
-    color: '#1E293B',
+    color: COLORS.text,
+    fontWeight: FONT_WEIGHT.medium,
   },
   actions: {
     flexDirection: 'row',
@@ -361,26 +368,24 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   contactCard: {
-    backgroundColor: '#FFFFFF',
-    padding: 16,
-    borderRadius: 20,
+    backgroundColor: COLORS.card,
+    padding: SPACING.md,
+    borderRadius: RADIUS.lg,
     flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#94A3B8',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 10,
-    elevation: 4,
-    marginBottom: 2,
+    ...SHADOWS.md,
+    marginBottom: SPACING.xs,
   },
   avatar: {
-    width: 50,
-    height: 50,
-    backgroundColor: '#F1F5F9',
-    borderRadius: 25,
+    width: 56,
+    height: 56,
+    backgroundColor: COLORS.tealLight,
+    borderRadius: 28,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 16,
+    marginRight: SPACING.md,
+    borderWidth: 2,
+    borderColor: COLORS.primary,
   },
   avatarImage: {
     width: '100%',
@@ -388,8 +393,8 @@ const styles = StyleSheet.create({
     borderRadius: 25,
   },
   avatarText: {
-    color: '#64748B',
-    fontWeight: '600',
+    color: COLORS.primary,
+    fontWeight: FONT_WEIGHT.bold,
     fontSize: FONT_SIZE.lg,
   },
   contactInfo: {
@@ -398,19 +403,19 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   contactName: {
-    fontSize: FONT_SIZE.base,
-    fontWeight: '700',
-    color: '#334155',
-    letterSpacing: 0.2,
+    fontSize: FONT_SIZE.lg,
+    fontWeight: FONT_WEIGHT.bold,
+    color: COLORS.text,
+    letterSpacing: 0.3,
   },
   contactMeta: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   metaText: {
-    color: '#94A3B8',
-    fontSize: 13,
-    fontWeight: '500',
+    color: COLORS.mutedText,
+    fontSize: FONT_SIZE.sm,
+    fontWeight: FONT_WEIGHT.medium,
   },
   callButton: {
     padding: 8,

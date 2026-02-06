@@ -7,8 +7,10 @@ import { addContact, getContactById, updateContact } from '../../db/contacts';
 import { Camera, ArrowLeft } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { COLORS, SPACING, FONT_SIZE, RADIUS } from '../../constants/theme';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export default function AddContactScreen() {
+    const { colors } = useTheme();
     const navigate = useNavigate();
     const { id } = useParams(); // Check if we are in edit mode
     const isEditMode = !!id;
@@ -100,31 +102,31 @@ export default function AddContactScreen() {
 
     return (
         <Layout style={styles.layout}>
-            <View style={styles.header}>
+            <View style={[styles.header, { borderBottomColor: colors.border }]}>
                 <TouchableOpacity onPress={() => navigate(-1)}>
-                    <ArrowLeft size={24} color="#334155" />
+                    <ArrowLeft size={24} color={colors.text} />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>{isEditMode ? 'Edit Contact' : 'New Contact'}</Text>
+                <Text style={[styles.headerTitle, { color: colors.text }]}>{isEditMode ? 'Edit Contact' : 'New Contact'}</Text>
                 <TouchableOpacity onPress={handleSubmit}>
-                    <Text style={styles.saveButtonText}>{isEditMode ? 'Update' : 'Save'}</Text>
+                    <Text style={[styles.saveButtonText, { color: colors.primary }]}>{isEditMode ? 'Update' : 'Save'}</Text>
                 </TouchableOpacity>
             </View>
 
             <ScrollView style={styles.content}>
-                <View style={styles.imageSection}>
-                    <TouchableOpacity onPress={handlePickImage} style={styles.imagePicker}>
+                <View style={[styles.imageSection, { backgroundColor: colors.card }]}>
+                    <TouchableOpacity onPress={handlePickImage} style={[styles.imagePicker, { backgroundColor: colors.input, borderColor: colors.card }]}>
                         {image ? (
                             <Image source={{ uri: image }} style={styles.image} />
                         ) : (
-                            <Camera size={40} color="#94A3B8" />
+                            <Camera size={40} color={colors.mutedText} />
                         )}
                     </TouchableOpacity>
                     {!isEditMode && (
                         <TouchableOpacity
-                            style={styles.importButton}
+                            style={[styles.importButton, { backgroundColor: colors.card, borderColor: colors.border }]}
                             onPress={() => navigate('/import-contacts')}
                         >
-                            <Text style={styles.importButtonText}>Import from Device</Text>
+                            <Text style={[styles.importButtonText, { color: colors.mutedText }]}>Import from Device</Text>
                         </TouchableOpacity>
                     )}
                 </View>
@@ -132,72 +134,78 @@ export default function AddContactScreen() {
                 <View style={styles.form}>
                     <View style={styles.row}>
                         <View style={styles.halfInput}>
-                            <Text style={styles.label}>First Name</Text>
+                            <Text style={[styles.label, { color: colors.mutedText }]}>First Name</Text>
                             <TextInput
-                                style={styles.input}
+                                style={[styles.input, { backgroundColor: colors.input, borderColor: colors.border, color: colors.text }]}
                                 value={form.firstName}
                                 onChangeText={t => setForm({ ...form, firstName: t })}
+                                placeholderTextColor={colors.mutedText}
                             />
                         </View>
                         <View style={styles.halfInput}>
-                            <Text style={styles.label}>Last Name</Text>
+                            <Text style={[styles.label, { color: colors.mutedText }]}>Last Name</Text>
                             <TextInput
-                                style={styles.input}
+                                style={[styles.input, { backgroundColor: colors.input, borderColor: colors.border, color: colors.text }]}
                                 value={form.lastName}
                                 onChangeText={t => setForm({ ...form, lastName: t })}
+                                placeholderTextColor={colors.mutedText}
                             />
                         </View>
                     </View>
 
                     <View style={styles.inputGroup}>
-                        <Text style={styles.label}>Mobile</Text>
+                        <Text style={[styles.label, { color: colors.mutedText }]}>Mobile</Text>
                         <TextInput
-                            style={styles.input}
+                            style={[styles.input, { backgroundColor: colors.input, borderColor: colors.border, color: colors.text }]}
                             value={form.mobileNumber}
                             onChangeText={t => setForm({ ...form, mobileNumber: t })}
                             keyboardType="phone-pad"
+                            placeholderTextColor={colors.mutedText}
                         />
                     </View>
 
                     <View style={styles.inputGroup}>
-                        <Text style={styles.label}>Email</Text>
+                        <Text style={[styles.label, { color: colors.mutedText }]}>Email</Text>
                         <TextInput
-                            style={styles.input}
+                            style={[styles.input, { backgroundColor: colors.input, borderColor: colors.border, color: colors.text }]}
                             value={form.email}
                             onChangeText={t => setForm({ ...form, email: t })}
                             keyboardType="email-address"
                             autoCapitalize="none"
+                            placeholderTextColor={colors.mutedText}
                         />
                     </View>
 
                     <View style={styles.inputGroup}>
-                        <Text style={styles.label}>Birthday (YYYY-MM-DD)</Text>
+                        <Text style={[styles.label, { color: colors.mutedText }]}>Birthday (YYYY-MM-DD)</Text>
                         {/* TODO: Upgrade to DatePicker */}
                         <TextInput
-                            style={styles.input}
+                            style={[styles.input, { backgroundColor: colors.input, borderColor: colors.border, color: colors.text }]}
                             value={form.birthday}
                             onChangeText={t => setForm({ ...form, birthday: t })}
                             placeholder="YYYY-MM-DD"
-                            placeholderTextColor="#CBD5E1"
+                            placeholderTextColor={colors.mutedText}
                         />
                     </View>
 
                     {/* Role Selection */}
                     <View style={styles.inputGroup}>
-                        <Text style={styles.label}>Relation Type</Text>
+                        <Text style={[styles.label, { color: colors.mutedText }]}>Relation Type</Text>
                         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.roleContainer}>
                             {ROLES.map((role) => (
                                 <TouchableOpacity
                                     key={role}
                                     style={[
                                         styles.rolePill,
-                                        form.relationType === role && styles.rolePillActive
+                                        { backgroundColor: colors.input, borderColor: colors.border },
+                                        form.relationType === role && { backgroundColor: colors.tealLight, borderColor: colors.primary }
                                     ]}
                                     onPress={() => setForm({ ...form, relationType: role })}
                                 >
                                     <Text style={[
                                         styles.roleText,
-                                        form.relationType === role && styles.roleTextActive
+                                        { color: colors.mutedText },
+                                        form.relationType === role && { color: colors.primary }
                                     ]}>
                                         {role}
                                     </Text>
@@ -207,26 +215,28 @@ export default function AddContactScreen() {
                     </View>
 
                     <View style={styles.inputGroup}>
-                        <Text style={styles.label}>Notes</Text>
+                        <Text style={[styles.label, { color: colors.mutedText }]}>Notes</Text>
                         <TextInput
-                            style={[styles.input, styles.textArea]}
+                            style={[styles.input, styles.textArea, { backgroundColor: colors.input, borderColor: colors.border, color: colors.text }]}
                             value={form.notes}
                             onChangeText={t => setForm({ ...form, notes: t })}
                             multiline
                             numberOfLines={4}
                             textAlignVertical="top"
+                            placeholderTextColor={colors.mutedText}
                         />
                     </View>
 
-                    <View style={styles.vaultSwitch}>
+                    {/* Vault Toggle */}
+                    <View style={[styles.vaultRow, { backgroundColor: colors.tealLight, borderColor: colors.primary }]}>
                         <View>
-                            <Text style={styles.vaultTitle}>Secure Vault</Text>
-                            <Text style={styles.vaultSubtitle}>Hide this contact from the main list</Text>
+                            <Text style={[styles.vaultTitle, { color: colors.primary }]}>Add to Secure Vault</Text>
+                            <Text style={[styles.vaultSubtitle, { color: colors.mutedText }]}>Hide this contact from the main list</Text>
                         </View>
                         <Switch
                             value={form.isPrivate}
                             onValueChange={v => setForm({ ...form, isPrivate: v })}
-                            trackColor={{ false: '#e2e8f0', true: COLORS.primary }}
+                            trackColor={{ false: colors.border, true: colors.primary }}
                         />
                     </View>
                 </View>
@@ -237,7 +247,7 @@ export default function AddContactScreen() {
 
 const styles = StyleSheet.create({
     layout: {
-        backgroundColor: '#FFFFFF',
+        flex: 1,
     },
     header: {
         flexDirection: 'row',
@@ -246,12 +256,10 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 16,
         borderBottomWidth: 1,
-        borderBottomColor: '#F1F5F9', // slate-100
     },
     headerTitle: {
         fontSize: FONT_SIZE.lg,
         fontWeight: 'bold',
-        color: '#0F172A',
     },
     saveButtonText: {
         color: COLORS.primary,
@@ -264,19 +272,16 @@ const styles = StyleSheet.create({
     imageSection: {
         alignItems: 'center',
         paddingVertical: 32,
-        backgroundColor: '#F8FAFC', // slate-50
         marginBottom: 24,
     },
     imagePicker: {
         width: 128,
         height: 128,
-        backgroundColor: '#E2E8F0',
         borderRadius: 64,
         alignItems: 'center',
         justifyContent: 'center',
         overflow: 'hidden',
         borderWidth: 4,
-        borderColor: '#FFFFFF',
         shadowColor: 'black',
         shadowOpacity: 0.1,
         shadowRadius: 4,
@@ -288,15 +293,12 @@ const styles = StyleSheet.create({
     },
     importButton: {
         marginTop: 16,
-        backgroundColor: '#FFFFFF',
         paddingHorizontal: 16,
         paddingVertical: 8,
         borderRadius: RADIUS.full,
         borderWidth: 1,
-        borderColor: '#E2E8F0',
     },
     importButtonText: {
-        color: '#475569',
         fontWeight: '500',
     },
     form: {
@@ -317,15 +319,12 @@ const styles = StyleSheet.create({
     label: {
         fontSize: FONT_SIZE.xs,
         fontWeight: 'bold',
-        color: '#64748B',
         textTransform: 'uppercase',
         marginBottom: 8,
     },
     input: {
-        backgroundColor: '#F8FAFC',
         padding: 16,
         borderRadius: RADIUS.lg,
-        color: '#0F172A',
         fontWeight: '500',
         fontSize: FONT_SIZE.base,
     },
@@ -339,16 +338,14 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 10,
         borderRadius: RADIUS.full,
-        backgroundColor: '#F1F5F9', // slate-100
         borderWidth: 1,
         borderColor: 'transparent',
     },
     rolePillActive: {
-        backgroundColor: '#F0FDFA', // teal-50
+        backgroundColor: COLORS.tealLight, // Specific for active role
         borderColor: COLORS.primary,
     },
     roleText: {
-        color: '#64748B',
         fontSize: FONT_SIZE.sm,
         fontWeight: '600',
     },
@@ -359,11 +356,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        backgroundColor: COLORS.tealLight,
         padding: 16,
         borderRadius: RADIUS.lg,
         borderWidth: 1,
-        borderColor: 'rgba(15, 118, 110, 0.2)',
         marginTop: 16,
     },
     vaultTitle: {

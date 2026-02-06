@@ -6,6 +6,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { useState, useEffect } from 'react';
 import * as Font from 'expo-font';
 import { Inter_400Regular, Inter_700Bold } from '@expo-google-fonts/inter';
+import { ThemeProvider } from './src/contexts/ThemeContext';
 
 // Screens
 import SplashScreen from './src/screens/auth/SplashScreen';
@@ -52,35 +53,37 @@ export default function App() {
   }
 
   return (
-    <SafeAreaProvider>
-      <StatusBar style="auto" />
-      <NativeRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <Routes>
-          {/* Public / Auth Flow */}
-          <Route path="/" element={<SplashScreen />} />
-          <Route path="/onboarding" element={<OnboardingScreen />} />
-          <Route path="/vault-auth" element={<VaultAuthScreen />} />
+    <ThemeProvider>
+      <SafeAreaProvider>
+        <StatusBar style="auto" />
+        <NativeRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <Routes>
+            {/* Public / Auth Flow */}
+            <Route path="/" element={<SplashScreen />} />
+            <Route path="/onboarding" element={<OnboardingScreen />} />
+            <Route path="/vault-auth" element={<VaultAuthScreen />} />
 
-          {/* Main App (Tab Navigation) */}
-          <Route path="/app" element={<MainTabLayout />}>
-            <Route path="contacts" element={<ContactsListScreen />} />
-            <Route path="interactions" element={<InteractionsScreen />} />
-            <Route path="reminders" element={<RemindersScreen />} />
-            <Route path="vault" element={<VaultScreen />} />
-            <Route path="settings" element={<SettingsScreen />} />
-          </Route>
+            {/* Main App (Tab Navigation) */}
+            <Route path="/app" element={<MainTabLayout />}>
+              <Route path="contacts" element={<ContactsListScreen />} />
+              <Route path="interactions" element={<InteractionsScreen />} />
+              <Route path="reminders" element={<RemindersScreen />} />
+              <Route path="vault" element={<VaultScreen />} />
+              <Route path="settings" element={<SettingsScreen />} />
+            </Route>
 
-          {/* Detail Screens (Stack-like, outside tabs or on top) */}
-          <Route path="/add-contact" element={<AddContactScreen />} />
-          <Route path="/edit-contact/:id" element={<AddContactScreen />} />
-          <Route path="/import-contacts" element={<ImportContactsScreen />} />
-          <Route path="/contact/:id" element={<ContactProfileScreen />} />
-          <Route path="/log-interaction/:contactId" element={<LogInteractionScreen />} />
-          <Route path="/add-reminder" element={<AddReminderScreen />} />
-          <Route path="/add-reminder/:contactId" element={<AddReminderScreen />} />
+            {/* Detail Screens (Stack-like, outside tabs or on top) */}
+            <Route path="/add-contact" element={<AddContactScreen />} />
+            <Route path="/edit-contact/:id" element={<AddContactScreen />} />
+            <Route path="/import-contacts" element={<ImportContactsScreen />} />
+            <Route path="/contact/:id" element={<ContactProfileScreen />} />
+            <Route path="/log-interaction/:contactId" element={<LogInteractionScreen />} />
+            <Route path="/add-reminder" element={<AddReminderScreen />} />
+            <Route path="/add-reminder/:contactId" element={<AddReminderScreen />} />
 
-        </Routes>
-      </NativeRouter>
-    </SafeAreaProvider>
+          </Routes>
+        </NativeRouter>
+      </SafeAreaProvider>
+    </ThemeProvider>
   );
 }
