@@ -120,7 +120,10 @@ export default function AddContactScreen() {
                         )}
                     </TouchableOpacity>
                     {!isEditMode && (
-                        <TouchableOpacity style={styles.importButton}>
+                        <TouchableOpacity
+                            style={styles.importButton}
+                            onPress={() => navigate('/import-contacts')}
+                        >
                             <Text style={styles.importButtonText}>Import from Device</Text>
                         </TouchableOpacity>
                     )}
